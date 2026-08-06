@@ -1,3 +1,0 @@
-
-const SUPABASE_URL = 'https://jmcoxpwrqdlhripedljw.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptY294cHdycWRsaHJpcGVkbGp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MzU1OTgsImV4cCI6MjEwMDMxMTU5OH0.D7PG_csGVtMA2MLvO7tVH5H31gdwp8rQ4PEOWaeuzxE';
