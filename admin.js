@@ -65,9 +65,7 @@ document.addEventListener('keydown', e => {
     .forEach(m => m.classList.remove('open'));
 });
 
-/* ════════════════════════════════════════════════
-   CARRITO
-════════════════════════════════════════════════ */
+/* CARRITO */
 function agregarAlCarrito(id, nombre, precio, categoria = '') {
   // Los "combinados"/"dobles" se agregan como línea separada cada vez,
   // porque cada uno puede llevar una nota distinta (ej. distinta carne).
@@ -300,9 +298,7 @@ function renderPlatillosOrden(lista) {
   }).join('');
 }
 
-/* ════════════════════════════════════════════════
-   STATS
-════════════════════════════════════════════════ */
+/* STATS */
 async function loadStats() {
   try {
     // DDL: tabla "categorias" (plural), PK "id"
@@ -319,10 +315,7 @@ async function loadStats() {
   } catch(e) { console.warn('Stats no disponibles', e); }
 }
 
-/* ════════════════════════════════════════════════
-   CATEGORÍAS
-   DDL: tabla "categorias", PK "id", campo "nombre"
-════════════════════════════════════════════════ */
+/*CATEGORÍAS */
 async function loadCategorias() {
   try {
     // DDL usa "categorias" (plural)
@@ -359,10 +352,7 @@ async function loadCategorias() {
   }
 }
 
-/* ════════════════════════════════════════════════
-   MENÚ
-   DDL: platillo.id, platillo.precio, platillo.id_categorias → categorias.id
-════════════════════════════════════════════════ */
+/* MENÚ */
 async function loadMenu() {
   try {
     // DDL no tiene columna "frecuencia" — no la pedimos
@@ -467,13 +457,7 @@ async function crearPlatillo() {
   }
 }
 
-/* ════════════════════════════════════════════════
-   ÓRDENES
-   DDL: orden.id (no id_orden), orden.empleado → empleado.id
-        No existe orden.estado ni orden.cuenta_total
-        El total se calcula desde detalle_orden × platillo.precio
-        ingreso.id_orden registra el pago (reemplaza "pago" en v2)
-════════════════════════════════════════════════ */
+/* ÓRDENES*/
 async function loadOrdenes() {
   const grid = document.getElementById('ordenesGrid');
   grid.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto"></div><p style="margin-top:1rem">Cargando órdenes…</p></div>';
@@ -580,12 +564,7 @@ async function crearOrden() {
   }
 }
 
-/* ════════════════════════════════════════════════
-   INVENTARIO
-   DDL: tabla "ingredientes" (plural), PK "id"
-        tabla "inventario": id, id_ingrediente, fecha, cantidad
-        No existe columna "existencia" — se suma desde inventario
-════════════════════════════════════════════════ */
+/*INVENTARIO */
 async function loadInventario() {
   try {
     // Traer ingredientes + suma de inventario agrupada
@@ -784,9 +763,7 @@ async function eliminarIngrediente(id) {
   }
 }
 
-/* ════════════════════════════════════════════════
-   NOTIFICACIONES
-════════════════════════════════════════════════ */
+/*NOTIFICACIONES */
 function toggleNotifPanel() {
   const panel = document.getElementById('notifPanel');
   panel.classList.toggle('open');
@@ -846,13 +823,7 @@ function renderNotificaciones(alertas) {
   `).join('');
 }
 
-/* ════════════════════════════════════════════════
-   EMPLEADOS (antes "Meseros")
-   DDL: empleado.id, nombre, paterno, materno, telefono,
-        fecha_ingreso, fecha_egreso, rol (FK a roles.id)
-   ⚠️  No existe "turno" en DDL — se agrega como columna
-       adicional en TABLAS_SUPABASE_v2.sql
-════════════════════════════════════════════════ */
+/* Empleados */
 async function loadMeseros() {
   const grid = document.getElementById('mesesGrid');
   grid.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto"></div><p style="margin-top:1rem">Cargando meseros…</p></div>';
@@ -894,7 +865,6 @@ async function loadMeseros() {
 
     // Poblar selector de empleado en modal de orden
     poblarSelectorEmpleado(empleados);
-    poblarSelectores();
   } catch(e) {
     grid.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Error al cargar meseros.</p></div>';
     console.error(e);
@@ -935,8 +905,7 @@ async function crearMesero() {
   if (!rolId)          return showToast('Selecciona un rol', 'error');
 
   try {
-    // DDL: empleado.paterno es NOT NULL, pero ya no le pedimos ese dato
-    // al usuario — se guarda vacío. Todo el nombre va en "nombre".
+  
     await sb.post('empleado', {
       nombre:        nombreCompleto,
       paterno:       '',
@@ -976,10 +945,7 @@ async function cargarRolesEnModal() {
   } catch(e) { console.warn('Error al cargar roles', e); }
 }
 
-/* ════════════════════════════════════════════════
-   MESAS — Mapa visual
-   DDL: tabla "mesa" — ver TABLAS_SUPABASE_v2.sql
-════════════════════════════════════════════════ */
+/*  MESAS — Mapa visual */
 async function loadMesas() {
   try {
     allMesas = await sb.get('mesa', 'select=id_mesa,numero,estado,id_orden_activa,hora_ocupada&order=numero.asc');
@@ -994,7 +960,6 @@ function renderMesas() {
   const wrap = document.getElementById('mapaMesas');
   if (!allMesas.length) {
     wrap.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-light)">No hay mesas. Haz clic en "Crear las 7 mesas".</p>';
-    poblarQRSelector();
     return;
   }
   wrap.innerHTML = allMesas.map(m => {
@@ -1012,7 +977,6 @@ function renderMesas() {
       </div>
     `;
   }).join('');
-  poblarQRSelector();
 }
 
 function clickMesa(idMesa) {
@@ -1070,15 +1034,8 @@ async function inicializarMesas() {
   }
 }
 
-/* ════════════════════════════════════════════════
-   CAJA / COBRO
-   DDL: tabla "ingreso" (no "pago")
-        ingreso.id_orden → orden.id
-        ingreso.monto, ingreso.fecha
-   Tabla "pago" en TABLAS_SUPABASE_v2.sql es alias
-   de ingreso con columna extra "metodo"
-════════════════════════════════════════════════ */
-/* ── Resumen Sábado/Domingo — SOLO visible para el rol "admin" ── */
+/* CAJA / COBRO */
+/* Resumen Sábado/Domingo */
 async function loadResumenFinDeSemana() {
   if (rolActual !== 'admin') return;
   const cont = document.getElementById('resumenFinSemanaBody');
@@ -1283,36 +1240,15 @@ function imprimirTicket() {
   ventana.print();
 }
 
-/* ════════════════════════════════════════════════
-   RESEÑAS / QR
-   DDL: tabla "resena" — ver TABLAS_SUPABASE_v2.sql
-════════════════════════════════════════════════ */
-function poblarQRSelector() {
-  const sel = document.getElementById('qrMesaSelect');
-  if (!sel) return;
-  const nombres = allMesas.length
-    ? allMesas.map(m => m.numero)
-    : ['Banqueta', 'Camión Izquierdo', 'Camión Derecho', 'Poste', 'Carmen', 'Ara', 'Palo'];
-  sel.innerHTML = '<option value="">— elige una mesa —</option>' +
-    nombres.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
-}
-
-function poblarSelectores() {
-  poblarQRSelector();
-}
-
-function generarQR(numMesa) {
+/*RESEÑAS / QR */
+function generarQRUnico() {
   const wrap = document.getElementById('qrDisplay');
-  if (!numMesa) {
-    wrap.innerHTML = '<p class="qr-placeholder">Selecciona una mesa para ver su QR</p>';
-    return;
-  }
+  if (!wrap) return;
   const baseUrl = window.location.href.replace(/admin\.html.*$/, '').replace(/index\.html.*$/, '');
-  const url     = `${baseUrl}cliente.html?mesa=${encodeURIComponent(numMesa)}`;
-  const qrUrl   = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&color=C6491E&bgcolor=FBF2DF`;
+  const url     = `${baseUrl}cliente.html`;
+  const qrUrl   = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}&color=C6491E&bgcolor=FBF2DF`;
   wrap.innerHTML = `
-    <img src="${qrUrl}" alt="QR Mesa ${esc(numMesa)}" width="200" height="200"/>
-    <p style="font-weight:700;margin-top:0.5rem">Mesa ${esc(numMesa)}</p>
+    <img src="${qrUrl}" alt="QR Carnitas Don Vic" width="220" height="220"/>
     <p class="qr-url">${esc(url)}</p>
     <button class="btn-secondary" style="margin-top:0.5rem" onclick="window.open('${url}','_blank')">🔗 Abrir enlace</button>
   `;
@@ -1324,7 +1260,7 @@ async function loadResenas() {
   lista.innerHTML  = '<div class="spinner" style="margin:2rem auto"></div>';
   try {
     const data = await sb.get('resena',
-      'select=id_resena,numero_mesa,calificacion,comentario,fecha&order=fecha.desc&limit=20'
+      'select=id_resena,numero_mesa,nombre_cliente,calificacion,comentario,fecha&order=fecha.desc&limit=20'
     );
     if (!data.length) {
       lista.innerHTML   = '<p style="color:var(--gris);text-align:center;padding:2rem">Sin reseñas aún. ¡Comparte los QRs!</p>';
@@ -1343,7 +1279,7 @@ async function loadResenas() {
       <div class="resena-item">
         <div class="resena-stars">${'⭐'.repeat(r.calificacion)}${'☆'.repeat(5 - r.calificacion)}</div>
         <div class="resena-comentario">${esc(r.comentario || '(sin comentario)')}</div>
-        <div class="resena-meta">Mesa ${r.numero_mesa} · ${new Date(r.fecha).toLocaleString('es-MX')}</div>
+        <div class="resena-meta">${r.numero_mesa ? 'Mesa ' + esc(r.numero_mesa) : (r.nombre_cliente ? esc(r.nombre_cliente) + ' (para llevar)' : 'Para llevar')} · ${new Date(r.fecha).toLocaleString('es-MX')}</div>
       </div>
     `).join('');
   } catch(e) {
@@ -1351,13 +1287,7 @@ async function loadResenas() {
   }
 }
 
-/* [movido a shared.js / cliente.js] */
-
-/* [movido a shared.js / cliente.js] */
-
-/* ════════════════════════════════════════════════
-   AGREGAR MÁS A UNA ORDEN EXISTENTE (rondas)
-════════════════════════════════════════════════ */
+/*AGREGAR MÁS A UNA ORDEN EXISTENTE */
 let ordenAmpliarId = null;
 
 function ampliarOrden(idOrden) {
@@ -1408,10 +1338,7 @@ async function agregarRondaOrden() {
   }
 }
 
-/* ════════════════════════════════════════════════
-   COCINA / TAQUERO — tablero de pedidos por preparar,
-   agrupado por ronda (para no repetir lo ya entregado)
-════════════════════════════════════════════════ */
+/*COCINA / TAQUERO — tablero de pedidos por preparar, agrupado por ronda */
 let comandasCache = {};
 
 async function loadCocina() {
@@ -1546,12 +1473,7 @@ function abrirComandaGrande(idOrden) {
   openModal('modalComandaGrande');
 }
 
-/* ════════════════════════════════════════════════
-   COTIZACIONES DE EVENTOS
-   DDL: cotizaciones_evento (nombre, telefono, numero_personas,
-        direccion, fecha_evento, comentarios, atendido)
-════════════════════════════════════════════════ */
-/* [movido a shared.js / cliente.js] */
+/* COTIZACIONES DE EVENTOS*/
 
 async function loadCotizaciones() {
   const lista = document.getElementById('cotizacionesLista');
@@ -1595,9 +1517,7 @@ async function marcarCotizacionContactada(id) {
   }
 }
 
-/* ════════════════════════════════════════════════
-   ARRANQUE
-════════════════════════════════════════════════ */
+/* ARRANQUE */
 async function init() {
   if (SUPABASE_URL.includes('TU_PROYECTO') || SUPABASE_KEY.includes('TU_ANON_KEY')) {
     document.getElementById('menuGrid').innerHTML = `
@@ -1609,17 +1529,17 @@ async function init() {
     return;
   }
 
-  // Carga en paralelo lo que no depende de otros datos
+  
   await Promise.all([
     loadCategorias(),
-    loadMeseros(),    // necesario para poblar selector de empleado
+    loadMeseros(), 
   ]);
   loadMenu();
   loadStats();
   loadOrdenes();
   loadMesas();
   loadCocina();
-  poblarQRSelector();
+  generarQRUnico();
   cargarRolesEnModal();
   loadCotizaciones();
   aplicarPermisosPorRol();
@@ -1656,9 +1576,8 @@ function cerrarSesion() {
   location.reload();
 }
 
-/* ── Permisos por rol: "admin" (dueño/principal) ve todo;
-   "mesero" solo ve Órdenes, Cocina y Caja (sin el total del fin
-   de semana ni Eventos). El rol se guarda en la tabla "perfiles". ── */
+/* Permisos por rol: "admin"  ve todo;
+   "mesero" solo ve Órdenes, Cocina y Caja (sin el total). El rol se guarda en la tabla "perfiles".  */
 let rolActual = 'mesero'; // por seguridad, el más restringido por defecto hasta confirmar
 
 async function cargarPerfilYPermisos() {
