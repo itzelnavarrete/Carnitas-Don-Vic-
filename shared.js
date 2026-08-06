@@ -10,14 +10,22 @@ const sb = {
   // el anon key — así Supabase sabe que la petición viene de un
   // usuario autenticado (auth.role() = 'authenticated'), necesario
   // para las reglas RLS que protegen el panel admin.
+  //
+  // OJO: las claves nuevas de Supabase (sb_publishable_...) ya NO son
+  // JWT, así que NUNCA deben mandarse en el header Authorization — solo
+  // en "apikey". El header Authorization solo se manda cuando hay una
+  // sesión real iniciada (el access_token sí es un JWT válido).
   headers: () => {
     const sesion = sb.getSesion();
-    return {
+    const h = {
       'apikey':        SUPABASE_KEY,
-      'Authorization': `Bearer ${sesion ? sesion.access_token : SUPABASE_KEY}`,
       'Content-Type':  'application/json',
       'Prefer':        'return=representation'
     };
+    if (sesion && sesion.access_token) {
+      h['Authorization'] = `Bearer ${sesion.access_token}`;
+    }
+    return h;
   },
 
   async get(table, query = '') {
