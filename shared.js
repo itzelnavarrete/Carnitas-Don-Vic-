@@ -38,6 +38,18 @@ const sb = {
     return res.json();
   },
 
+  // Para envíos donde NO necesitamos que nos regrese la fila creada
+  // (ej. datos sensibles como cotizaciones de eventos) — así no hace
+  // falta darle permiso de LECTURA pública a esa tabla.
+  async postSinRetorno(table, body) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: { ...sb.headers(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw await res.json();
+  },
+
   async patch(table, filter, body) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`, {
       method: 'PATCH',
