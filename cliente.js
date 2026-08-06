@@ -57,7 +57,14 @@ async function loadMenuPublico() {
       </div>
     `).join('');
   } catch (e) {
-    wrap.innerHTML = '<div class="empty-state"><p>⚠️ No se pudo cargar el menú. Verifica config.js</p></div>';
+    wrap.innerHTML = `<div class="empty-state">
+      <p>⚠️ No pudimos cargar el menú en este momento.</p>
+      <p style="font-size:13px;margin-top:.5rem;color:var(--text-light)">
+        Intenta recargar la página, o si tienes un bloqueador de anuncios activado,
+        prueba desactivándolo para este sitio. Si el problema sigue, pídele ayuda al personal.
+      </p>
+      <button class="btn-primary" style="margin-top:1rem" onclick="location.reload()">Reintentar</button>
+    </div>`;
     console.error(e);
   }
 }
@@ -221,13 +228,13 @@ function notaFinal(v) {
   const partes = [];
   if (v.nota) partes.push(v.nota);
   if (llevaCebollaCilantro(v)) {
-    if (v.sinCebolla)  partes.push('Sin cebolla');
-    if (v.sinCilantro) partes.push('Sin cilantro');
-    if (esParaLlevar && verduraAparteGlobal) partes.push('Verdura aparte');
-  } else if (v.sinVerdura) {
-    partes.push('Sin verdura');
+    partes.push(v.sinCebolla ? 'Sin cebolla' : 'Con cebolla');
+    partes.push(v.sinCilantro ? 'Sin cilantro' : 'Con cilantro');
+    if (esParaLlevar) partes.push(verduraAparteGlobal ? 'Verdura aparte' : 'Verdura junto');
+  } else if (!esBebida(v) && !sinExtras(v)) {
+    partes.push(v.sinVerdura ? 'Sin verdura' : 'Con verdura');
   }
-  if (esGordita(v) && v.sinQueso) partes.push('Sin queso');
+  if (esGordita(v)) partes.push(v.sinQueso ? 'Sin queso' : 'Con queso');
   return partes.length ? partes.join(' — ') : null;
 }
 
@@ -476,7 +483,7 @@ async function enviarCotizacionEvento() {
   if (!direccion) return showToast('Escribe la dirección del evento', 'error');
 
   try {
-    await sb.post('cotizaciones_evento', {
+    await sb.postSinRetorno('cotizaciones_evento', {
       nombre:          nombre || null,
       telefono,
       numero_personas: parseInt(personas),
