@@ -510,14 +510,15 @@ function seleccionarEstrella(n) {
 }
 
 async function enviarResena() {
-  const mesa = mesaActual || document.getElementById('resenaMesaManual')?.value;
   const comentario = document.getElementById('resenaComentario').value.trim();
+  const nombreManual = document.getElementById('resenaNombreManual')?.value.trim();
   if (!estrellaSeleccionada) return showToast('Selecciona una calificación', 'error');
-  if (!mesa) return showToast('Indica el número de tu mesa', 'error');
+  if (!nombreManual) return showToast('Escribe tu nombre', 'error');
   try {
     await sb.post('resena', {
-      numero_mesa:  mesa,
-      calificacion: estrellaSeleccionada,
+      numero_mesa:    null,
+      nombre_cliente: nombreManual,
+      calificacion:   estrellaSeleccionada,
       comentario
     });
     document.querySelector('#resena .qr-panel').innerHTML = `
@@ -549,23 +550,10 @@ function init() {
     document.getElementById('pedidoOrigenTexto').textContent = `Pedido para tu Mesa ${mesaActual}. Selecciona los platillos que quieras.`;
   } else {
     document.getElementById('mesaBanner').textContent = 'Pedido para llevar / mostrador';
-    document.getElementById('resenaMesaManualWrap').style.display = 'block';
-    poblarMesasResena();
   }
 
   loadMenuPublico();
   renderCarrito();
-}
-
-async function poblarMesasResena() {
-  const sel = document.getElementById('resenaMesaManual');
-  try {
-    const mesas = await sb.get('mesa', 'select=numero&order=numero.asc');
-    sel.innerHTML = '<option value="">— Selecciona tu mesa —</option>' +
-      mesas.map(m => `<option value="${esc(m.numero)}">${esc(m.numero)}</option>`).join('');
-  } catch (e) {
-    sel.innerHTML = '<option value="">No se pudo cargar la lista de mesas</option>';
-  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
