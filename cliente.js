@@ -18,6 +18,11 @@ const mesaActual = new URLSearchParams(window.location.search).get('mesa');
 // Para llevar no aplica.
 const RECARGO_KG_COMER_AQUI = mesaActual ? 10 / 1000 : 0; // por gramo
 
+// Link directo para dejar reseña en la ficha real de Google del negocio
+// (place_id fijo — no cambia). Se usa tanto en el carrusel como al
+// terminar de enviar una reseña aquí.
+const GOOGLE_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=ChIJNwvxFDP60YUR90ryIu0r_vE';
+
 /* ════════════════════════════════════════════════
    MENÚ + PEDIDO
 ════════════════════════════════════════════════ */
@@ -521,13 +526,56 @@ async function enviarResena() {
       calificacion:   estrellaSeleccionada,
       comentario
     });
+    // El botón de Google se muestra SIEMPRE, sin importar la calificación
+    // que haya dado el cliente — filtrar por calificación ("review gating")
+    // va contra las políticas de Google y puede penalizar la ficha del negocio.
     document.querySelector('#resena .qr-panel').innerHTML = `
       <div style="font-size:4rem">🎉</div>
       <h2>¡Gracias!</h2>
-      <p style="color:var(--text-light);margin-top:1rem">Tu opinión nos ayuda a mejorar. ¡Vuelve pronto!</p>`;
+      <p style="color:var(--text-light);margin-top:1rem">Tu opinión nos ayuda a mejorar. ¡Vuelve pronto!</p>
+      <div class="google-review-cta">
+        <p>¿Nos regalas también una reseña en Google? Nos ayuda muchísimo a que más gente nos encuentre.</p>
+        <a href="${GOOGLE_REVIEW_URL}" target="_blank" rel="noopener" class="btn-google">⭐ Escribir reseña en Google</a>
+      </div>`;
     showToast('¡Reseña enviada! Gracias 🙏');
+    loadResenasCarrusel(); // refresca el carrusel con la nueva reseña
   } catch (e) {
     showToast('Error al enviar: ' + (e.message || JSON.stringify(e)), 'error');
+  }
+}
+
+/* ════════════════════════════════════════════════
+   CARRUSEL DE RESEÑAS ("escalera eléctrica")
+   Muestra las reseñas reales más recientes deslizándose sin parar.
+   La lista se duplica una vez para que el loop de CSS sea perfecto.
+════════════════════════════════════════════════ */
+async function loadResenasCarrusel() {
+  const track = document.getElementById('resenasCarruselTrack');
+  const seccion = document.getElementById('resenasCarrusel');
+  if (!track || !seccion) return;
+  try {
+    const data = await sb.get('resena',
+      'select=nombre_cliente,numero_mesa,calificacion,comentario,fecha&order=fecha.desc&limit=12'
+    );
+    // Sin reseñas todavía: ocultamos la sección completa en vez de
+    // mostrar un carrusel vacío.
+    if (!data.length) { seccion.style.display = 'none'; return; }
+    seccion.style.display = 'block';
+
+    const tarjeta = (r) => `
+      <div class="resena-carrusel-card">
+        <div class="rc-stars">${'⭐'.repeat(r.calificacion)}${'☆'.repeat(5 - r.calificacion)}</div>
+        <div class="rc-comentario">${esc(r.comentario || '¡Excelente!')}</div>
+        <div class="rc-autor">${esc(r.nombre_cliente || (r.numero_mesa ? 'Mesa ' + r.numero_mesa : 'Cliente'))}</div>
+      </div>`;
+
+    const html = data.map(tarjeta).join('');
+    // Se duplica el contenido para que la animación (translateX -50%)
+    // haga un loop continuo sin salto visible.
+    track.innerHTML = html + html;
+  } catch (e) {
+    seccion.style.display = 'none';
+    console.warn('No se pudo cargar el carrusel de reseñas', e);
   }
 }
 
@@ -554,6 +602,7 @@ function init() {
 
   loadMenuPublico();
   renderCarrito();
+  loadResenasCarrusel();
 }
 
 document.addEventListener('DOMContentLoaded', init);
