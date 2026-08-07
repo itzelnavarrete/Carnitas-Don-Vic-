@@ -19,7 +19,6 @@
         <li><a href="#ordenes">Órdenes</a></li>
         <li><a href="#inventario">Inventario</a></li>
         <li><a href="#meseros">Personal</a></li>
-        <li><a href="#mesas">Mesas</a></li>
         <li><a href="#cocina">Cocina</a></li>
         <li><a href="#eventos">Eventos</a></li>
         <li><a href="#caja">Caja</a></li>
@@ -190,27 +189,6 @@
         <div class="empty-state">
           <p>Sincronizando plantilla...</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="mesas" class="section-mesas">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-pill">Plano</div>
-        <h2>Disponibilidad de Mesas</h2>
-        <p class="section-sub">Asignación y estado en tiempo real de mesas.</p>
-      </div>
-      <div class="mesas-leyenda">
-        <span class="leyenda-item libre">Libre</span>
-        <span class="leyenda-item ocupada">Ocupada</span>
-      </div>
-      <div class="mapa-mesas" id="mapaMesas">
-        <p style="grid-column:1/-1;text-align:center;">Cargando disposición…</p>
-      </div>
-      <div class="mesas-controls" style="text-align:center; margin-top:2rem;">
-        <button class="btn-primary" onclick="loadMesas()">Refrescar mapa</button>
-        <button class="btn-secondary" onclick="inicializarMesas()">Inicializar Layout (7 Mesas)</button>
       </div>
     </div>
   </section>
@@ -433,21 +411,6 @@
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeModal('modalMesero')">Cancelar</button>
         <button class="btn-confirm" onclick="crearMesero()">Alta en Sistema</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="modalMesa" onclick="closeModalOutside(event,'modalMesa')">
-    <div class="modal">
-      <button class="modal-close" onclick="closeModal('modalMesa')">✕</button>
-      <h3 class="modal-title">Estado de la Mesa</h3>
-      <div class="mesa-modal-info" style="text-align:center; padding: 2rem 0;">
-        <div class="mesa-modal-num" id="mesaModalNum" style="font-family: var(--heading-font); font-size:2.5rem; color:var(--accent-color);">Mesa —</div>
-        <div class="mesa-modal-tiempo" id="mesaModalTiempo" style="color:var(--text-light); margin-top:0.5rem;"></div>
-      </div>
-      <div class="modal-footer" style="justify-content:center;">
-        <button class="btn-cancel" onclick="closeModal('modalMesa')">Cerrar</button>
-        <button class="btn-primary" onclick="liberarMesaActual()">Liberar Mesa</button>
       </div>
     </div>
   </div>
