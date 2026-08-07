@@ -1655,11 +1655,18 @@ async function cargarPerfilYPermisos() {
 
 function aplicarPermisosPorRol() {
   const esAdmin = rolActual === 'admin';
-  // Secciones que SOLO ve el principal/admin
+  // Secciones que SOLO ve el principal/admin — el mesero solo debe ver
+  // Órdenes, Cocina y Caja (que no están en esta lista, así que siempre
+  // quedan visibles para ambos roles).
   const idsSoloAdmin = ['menu', 'inventario', 'meseros', 'mesas', 'eventos', 'resenas'];
   idsSoloAdmin.forEach(id => {
+    // Esconde el link en el menú de navegación
     const link = document.querySelector(`.nav-links a[href="#${id}"]`);
     if (link) link.closest('li').style.display = esAdmin ? '' : 'none';
+    // Esconde la sección completa en sí — así aunque el mesero entre
+    // por URL directa (ej. admin.html#resenas) o haga scroll, no la ve.
+    const seccion = document.getElementById(id);
+    if (seccion) seccion.style.display = esAdmin ? '' : 'none';
   });
   const resumen = document.getElementById('resumenFinSemana');
   if (resumen) resumen.style.display = esAdmin ? 'block' : 'none';
