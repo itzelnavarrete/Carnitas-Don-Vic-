@@ -638,3 +638,55 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
   margin: -.3rem 0 .9rem; opacity: .85;
 }
 #pedido .menu-card-footer { flex-direction: column; gap: .3rem; }
+
+/* ── Carrusel de reseñas — "escalera eléctrica" (cliente.html) ──
+   Reutiliza la misma técnica del .promo-marquee (translateX infinito),
+   pero con tarjetas de reseña en vez de texto. La lista se duplica en
+   el JS para que el loop sea perfecto (por eso el keyframe va a -50%). */
+.resenas-carrusel-wrap {
+  overflow: hidden;
+  padding: 3rem 0;
+  background: var(--secondary-color);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.resenas-carrusel-titulo {
+  text-align: center; font-family: var(--heading-font); font-size: 1.8rem;
+  color: var(--accent-color); margin-bottom: 2rem;
+}
+.resenas-carrusel-track {
+  display: flex; gap: 1.5rem; width: max-content;
+  animation: resenas-carrusel-scroll 35s linear infinite;
+}
+.resenas-carrusel-wrap:hover .resenas-carrusel-track { animation-play-state: paused; }
+@keyframes resenas-carrusel-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.resena-carrusel-card {
+  background: #fff; border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: 1.5rem; min-width: 280px; max-width: 280px;
+  box-shadow: var(--shadow-sm); flex-shrink: 0;
+}
+.resena-carrusel-card .rc-stars { color: var(--accent-color); font-size: 1rem; margin-bottom: .5rem; }
+.resena-carrusel-card .rc-comentario {
+  font-family: var(--heading-font); font-style: italic; font-size: 1.05rem;
+  color: var(--text-color); margin-bottom: .75rem; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+}
+.resena-carrusel-card .rc-autor {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light);
+}
+
+/* ── Botón "también en Google" tras enviar una reseña ── */
+.google-review-cta {
+  margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--border);
+}
+.google-review-cta p { font-size: 13px; color: var(--text-light); margin-bottom: .75rem; }
+.btn-google {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: #fff; color: #3c4043; border: 1px solid var(--border);
+  padding: 10px 20px; border-radius: var(--r-sm); font-family: var(--font-body);
+  font-size: 13px; font-weight: 600; text-decoration: none;
+}
+.btn-google:hover { box-shadow: var(--shadow-sm); border-color: #dadce0; }
