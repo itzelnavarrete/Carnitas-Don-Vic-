@@ -30,8 +30,7 @@ let allPlatillos   = [];
 let allCategorias  = [];
 let allIngredientes = [];
 let currentFilter  = 'all';
-let allMesas       = [];
-let mesaSeleccionada = null;
+let allMesas       = [];   // catálogo de nombres de mesa (Banqueta, Ara, ...) — solo se usa para poblar el selector del modal "Nueva Orden"
 let allEmpleados   = [];   // era "allMeseros" — ahora usa tabla empleado
 let allRoles       = [];
 let allOrdenes     = [];
@@ -926,6 +925,21 @@ function poblarMesaSelectorOrden() {
     allMesas.map(m => `<option value="${esc(m.numero)}">${esc(m.numero)}${m.estado ? ' (ocupada)' : ''}</option>`).join('');
 }
 
+/* ════════════════════════════════════════════════
+   MESAS — catálogo de nombres, SIN mapa visual
+   Ya no hay una sección dedicada para ver disponibilidad;
+   esta función solo trae los nombres (Banqueta, Ara, ...)
+   para llenar el selector de mesa en "Nueva Orden".
+   DDL: tabla "mesa" — ver TABLAS_SUPABASE_v2.sql
+════════════════════════════════════════════════ */
+async function loadMesas() {
+  try {
+    allMesas = await sb.get('mesa', 'select=id_mesa,numero,estado&order=numero.asc');
+  } catch(e) {
+    console.error('Error al cargar el catálogo de mesas:', e);
+  }
+}
+
 async function crearMesero() {
   const nombreCompleto = document.getElementById('mes-nombre').value.trim();
   const rolId          = document.getElementById('mes-rol').value;
@@ -973,98 +987,6 @@ async function cargarRolesEnModal() {
     sel.innerHTML = '<option value="">— Selecciona rol —</option>' +
       roles.map(r => `<option value="${r.id}">${esc(r.nombre_rol)}</option>`).join('');
   } catch(e) { console.warn('Error al cargar roles', e); }
-}
-
-/* ════════════════════════════════════════════════
-   MESAS — Mapa visual
-   DDL: tabla "mesa" — ver TABLAS_SUPABASE_v2.sql
-════════════════════════════════════════════════ */
-async function loadMesas() {
-  try {
-    allMesas = await sb.get('mesa', 'select=id_mesa,numero,estado,id_orden_activa,hora_ocupada&order=numero.asc');
-    renderMesas();
-  } catch(e) {
-    console.error('Error al cargar mesas:', e);
-    showToast('Error al cargar mesas. ¿Corriste la migración de "numero" a texto?', 'error');
-  }
-}
-
-function renderMesas() {
-  const wrap = document.getElementById('mapaMesas');
-  if (!allMesas.length) {
-    wrap.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-light)">No hay mesas. Haz clic en "Crear las 7 mesas".</p>';
-    return;
-  }
-  wrap.innerHTML = allMesas.map(m => {
-    const ocupada = m.estado;
-    let tiempoStr = '';
-    if (ocupada && m.hora_ocupada) {
-      const mins = Math.floor((Date.now() - new Date(m.hora_ocupada)) / 60000);
-      tiempoStr = `<div class="mesa-tiempo">⏱ ${mins} min</div>`;
-    }
-    return `
-      <div class="mesa-card ${ocupada ? 'ocupada' : 'libre'}" onclick="clickMesa(${m.id_mesa})">
-        <div class="mesa-num">${esc(m.numero)}</div>
-        <div class="mesa-estado">${ocupada ? 'Ocupada' : 'Libre'}</div>
-        ${tiempoStr}
-      </div>
-    `;
-  }).join('');
-}
-
-function clickMesa(idMesa) {
-  const mesa = allMesas.find(m => m.id_mesa === idMesa);
-  if (!mesa) return;
-  mesaSeleccionada = mesa;
-  if (mesa.estado) {
-    const mins = mesa.hora_ocupada
-      ? Math.floor((Date.now() - new Date(mesa.hora_ocupada)) / 60000) : 0;
-    document.getElementById('mesaModalNum').textContent    = `Mesa ${mesa.numero}`;
-    document.getElementById('mesaModalTiempo').textContent = mesa.hora_ocupada
-      ? `Ocupada hace ${mins} minutos` : 'Ocupada';
-    openModal('modalMesa');
-  } else {
-    if (confirm(`¿Ocupar Mesa ${mesa.numero}?`)) ocuparMesa(idMesa);
-  }
-}
-
-async function ocuparMesa(idMesa) {
-  try {
-    await sb.patch('mesa', `id_mesa=eq.${idMesa}`, {
-      estado:      true,
-      hora_ocupada: new Date().toISOString()
-    });
-    showToast('Mesa marcada como ocupada 🍽️');
-    loadMesas();
-  } catch(e) { showToast('Error al actualizar la mesa', 'error'); }
-}
-
-async function liberarMesaActual() {
-  if (!mesaSeleccionada) return;
-  try {
-    await sb.patch('mesa', `id_mesa=eq.${mesaSeleccionada.id_mesa}`, {
-      estado:          false,
-      id_orden_activa: null,
-      hora_ocupada:    null
-    });
-    showToast(`Mesa ${mesaSeleccionada.numero} liberada ✅`);
-    closeModal('modalMesa');
-    loadMesas();
-  } catch(e) { showToast('Error al liberar la mesa', 'error'); }
-}
-
-async function inicializarMesas() {
-  if (!confirm('¿Crear las 7 mesas del puesto? (Solo si no existen)')) return;
-  try {
-    const nombres = ['Banqueta', 'Camión Izquierdo', 'Camión Derecho', 'Poste', 'Carmen', 'Ara', 'Palo'];
-    const datos = nombres.map(nombre => ({ numero: nombre, estado: false }));
-    await sb.post('mesa', datos);
-    showToast('¡Las 7 mesas fueron creadas! ✅');
-    loadMesas();
-  } catch(e) {
-    showToast('Error (quizás ya existen): ' + (e.message || ''), 'error');
-    loadMesas();
-  }
 }
 
 /* ════════════════════════════════════════════════
@@ -1658,7 +1580,7 @@ function aplicarPermisosPorRol() {
   // Secciones que SOLO ve el principal/admin — el mesero solo debe ver
   // Órdenes, Cocina y Caja (que no están en esta lista, así que siempre
   // quedan visibles para ambos roles).
-  const idsSoloAdmin = ['menu', 'inventario', 'meseros', 'mesas', 'eventos', 'resenas'];
+  const idsSoloAdmin = ['menu', 'inventario', 'meseros', 'eventos', 'resenas'];
   idsSoloAdmin.forEach(id => {
     // Esconde el link en el menú de navegación
     const link = document.querySelector(`.nav-links a[href="#${id}"]`);
