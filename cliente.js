@@ -1,4 +1,5 @@
 
+
 let carrito = {};              // { id_platillo: { nombre, precio, cantidad, categoria } }
 let estrellaSeleccionada = 0;
 let bebidasDisponibles = [];   // se llena en loadMenuPublico, para las promos
@@ -229,14 +230,28 @@ function toggleVerduraAparteGlobal() {
 function notaFinal(v) {
   const partes = [];
   if (v.nota) partes.push(v.nota);
+
   if (llevaCebollaCilantro(v)) {
-    partes.push(v.sinCebolla ? 'Sin cebolla' : 'Con cebolla');
-    partes.push(v.sinCilantro ? 'Sin cilantro' : 'Con cilantro');
-    if (esParaLlevar) partes.push(verduraAparteGlobal ? 'Verdura aparte' : 'Verdura junto');
+    // Solo se anota lo que se sale de "lo normal" (con cebolla, con
+    // cilantro, junto) — así el taquero no ve texto de más.
+    const quiereCebolla  = !v.sinCebolla;
+    const quiereCilantro = !v.sinCilantro;
+    const aparte = esParaLlevar && verduraAparteGlobal;
+
+    if (quiereCebolla && quiereCilantro) {
+      if (aparte) partes.push('Aparte');
+      // si quiere las dos y no es aparte (lo normal) — no se anota nada
+    } else if (quiereCebolla) {
+      partes.push(aparte ? 'Con cebolla, aparte' : 'Con cebolla');
+    } else if (quiereCilantro) {
+      partes.push(aparte ? 'Con cilantro, aparte' : 'Con cilantro');
+    } else {
+      partes.push('Sin cebolla ni cilantro');
+    }
   } else if (!esBebida(v) && !sinExtras(v)) {
-    partes.push(v.sinVerdura ? 'Sin verdura' : 'Con verdura');
+    if (v.sinVerdura) partes.push('Sin verdura');
   }
-  if (esGordita(v)) partes.push(v.sinQueso ? 'Sin queso' : 'Con queso');
+  if (esGordita(v) && v.sinQueso) partes.push('Sin queso');
   return partes.length ? partes.join(' — ') : null;
 }
 
