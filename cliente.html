@@ -79,7 +79,7 @@
       </div>
 
       <div class="resenas-layout" style="margin-top:3rem;">
-        <div class="qr-panel" style="text-align:left;">
+        <div class="qr-panel" id="resumenPedido" style="text-align:left;">
           <h3 style="text-align:center;">Tu pedido</h3>
           <div id="promoBanner"></div>
           <div id="clienteCarrito" style="margin:1rem 0;"></div>
@@ -223,7 +223,7 @@
     </div>
   </div>
 
-  <div id="carritoFlotante" class="carrito-flotante" style="display:none;" onclick="document.getElementById('pedido').scrollIntoView({behavior:'smooth'})">
+  <div id="carritoFlotante" class="carrito-flotante" style="display:none;" onclick="document.getElementById('resumenPedido').scrollIntoView({behavior:'smooth', block:'start'})">
     <span class="cf-icono">🛒</span>
     <span class="cf-texto"><span id="cfCantidad">0</span> producto(s) en tu pedido</span>
     <span class="cf-total" id="cfTotal">$0.00</span>
