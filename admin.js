@@ -176,10 +176,21 @@ function notaFinal(v) {
   const partes = [];
   if (v.nota) partes.push(v.nota);
   if (llevaCebollaCilantro(v)) {
-    partes.push(v.sinCebolla ? 'Sin cebolla' : 'Con cebolla');
-    partes.push(v.sinCilantro ? 'Sin cilantro' : 'Con cilantro');
+    // Solo se anota lo que se sale de "lo normal" (con cebolla y
+    // con cilantro) — así el taquero no ve texto de más.
+    const quiereCebolla  = !v.sinCebolla;
+    const quiereCilantro = !v.sinCilantro;
+    if (quiereCebolla && quiereCilantro) {
+      // lo normal — no se anota nada
+    } else if (quiereCebolla) {
+      partes.push('Con cebolla');
+    } else if (quiereCilantro) {
+      partes.push('Con cilantro');
+    } else {
+      partes.push('Sin cebolla ni cilantro');
+    }
   }
-  if (esGordita(v)) partes.push(v.sinQueso ? 'Sin queso' : 'Con queso');
+  if (esGordita(v) && v.sinQueso) partes.push('Sin queso');
   return partes.length ? partes.join(' — ') : null;
 }
 
