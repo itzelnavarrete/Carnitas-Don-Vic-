@@ -1,37 +1,31 @@
-/* ═══════════════════════════════════════════════════
-   CARNITAS DON VIC — Sistema de Gestión
-   Estética: comal caliente, achiote, masa y hoja de plátano.
-   Paleta y tipografía propias — no plantilla genérica.
-═══════════════════════════════════════════════════ */
 
 :root {
-    /* Paleta "puesto de carnitas" */
-    --primary-color: #FBF2DF;    /* masa / cuenco de loza */
-    --secondary-color: #FFFDF8;  /* tarjetas */
-    --accent-color: #C6491E;     /* achiote / chile guajillo tostado */
+    /* Paleta colores*/
+    --primary-color: #FBF2DF;    
+    --secondary-color: #FFFDF8;  
+    --accent-color: #C6491E;     
     --accent-hover: #A3390F;
-    --text-color: #2B2018;       /* comal quemado */
+    --text-color: #2B2018;       
     --text-light: #8A7666;
 
     /* Estados Semánticos */
-    --success: #5C7A3F;   /* aguacate */
-    --warning: #C48A2E;   /* mostaza */
+    --success: #5C7A3F;   
+    --warning: #C48A2E;  
     --danger: #A23B2E;
-
-    /* acento secundario — cempasúchil, usado con moderación */
     --marigold: #E3A23B;
 
-    /* Colores por categoría — para los medallones de icono, más vivos */
-    --cat-tacos: #C6491E;      /* achiote */
-    --cat-antojitos: #E3A23B;  /* marigold */
-    --cat-bebidas: #2E8B9C;    /* azul-verde fresco, contrasta con lo cálido */
-    --cat-kilo: #7A4A2B;       /* cuero/madera */
+    /* Colores icono */
+    --cat-tacos: #C6491E;      
+    --cat-tortas: #C98A3D;     
+    --cat-qyg: #E3A23B;  
+    --cat-bebidas: #2E8B9C;    
+    --cat-kilo: #7A4A2B;      
 
     /* Tipografía */
     --heading-font: 'Fraunces', serif;
     --font-body: 'Sora', sans-serif;
 
-    /* Layout — esquinas más amables, ambiente de puesto/mercado */
+    /* Layout */
     --section-padding: 6rem 0;
     --r-sm: 8px;
     --r-md: 14px;
@@ -624,6 +618,7 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
   background: var(--cat-tacos); color: #fff;
 }
 #pedido .menu-card[data-cat="tacos"]      .menu-card-emoji { background: var(--cat-tacos); }
+#pedido .menu-card[data-cat="tortas"]     .menu-card-emoji { background: var(--cat-tortas); }
 #pedido .menu-card[data-cat="antojitos"]  .menu-card-emoji { background: var(--cat-antojitos); }
 #pedido .menu-card[data-cat="bebidas"]    .menu-card-emoji { background: var(--cat-bebidas); }
 #pedido .menu-card[data-cat="kilo"]       .menu-card-emoji { background: var(--cat-kilo); }
