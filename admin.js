@@ -157,8 +157,9 @@ function limpiarCarrito() {
 function esBebida(v)  { return v.categoria === 'Bebidas'; }
 function esCombo(v)    { return /combinad|doble/i.test(v.nombre); }
 function esTaco(v)     { return v.categoria === 'Tacos'; }
+function esTorta(v)    { return v.categoria === 'Tortas'; }
 function esGordita(v)  { return /gordita/i.test(v.nombre); }
-function llevaCebollaCilantro(v) { return esTaco(v) || esGordita(v); }
+function llevaCebollaCilantro(v) { return esTaco(v) || esTorta(v) || esGordita(v); }
 function sinExtras(v) {
   if (v.categoria === 'Órdenes por kilo') return true;
   if (/salsa extra/i.test(v.nombre)) return true;
@@ -255,10 +256,11 @@ function ordenarParaPedido(lista) {
   // Orden pedido: Tacos → Bebidas → Quesadillas → Gorditas → (resto de Antojitos) → Órdenes por kilo
   const rango = (p) => {
     if (p.categoria === 'Tacos') return 0;
-    if (p.categoria === 'Bebidas') return 1;
-    if (p.categoria === 'Antojitos') return /quesadilla/i.test(p.nombre) ? 2 : 3;
-    if (p.categoria === 'Órdenes por kilo') return 4;
-    return 5;
+    if (p.categoria === 'Tortas') return 1;
+    if (p.categoria === 'Bebidas') return 2;
+    if (p.categoria === 'Quesadillas y Gorditas') return /quesadilla/i.test(p.nombre) ? 3 : 4;
+    if (p.categoria === 'Órdenes por kilo') return 5;
+    return 6;
   };
   return [...lista].sort((a, b) => rango(a) - rango(b) || a.nombre.localeCompare(b.nombre));
 }
@@ -481,7 +483,7 @@ async function loadOrdenes() {
 
     // Traer órdenes de hoy con su empleado y detalles
     const ordenes = await sb.get('orden',
-      `select=id,fecha,empleado,numero_mesa,nombre_cliente,detalle_orden(id,cantidad,platillo(id,nombre,precio,categorias(nombre)))&fecha=gte.${hoy}&order=id.desc`
+      `select=id,numero_dia,fecha,empleado,numero_mesa,nombre_cliente,detalle_orden(id,cantidad,platillo(id,nombre,precio,categorias(nombre)))&fecha=gte.${hoy}&order=id.desc`
     );
 
     // IDs de órdenes ya cobradas (tienen ingreso), con su método de pago
@@ -523,7 +525,7 @@ async function loadOrdenes() {
           </div>
           ${!cobrada ? `
           <div style="display:flex; gap:.5rem; margin-top:0.75rem; flex-wrap:wrap;">
-            <button class="action-btn" style="flex:1;" onclick="ampliarOrden(${o.id})">✏️ Modificar Nota</button>
+            <button class="action-btn" style="flex:1;" onclick="ampliarOrden(${o.id}, ${o.numero_dia})">✏️ Modificar Nota</button>
             <button class="action-btn" style="flex:1;background:var(--success);color:#fff;" onclick="abrirModalPago(${o.id}, ${total})">✅ Finalizar y Cobrar</button>
           </div>` : ''}
         </div>
@@ -551,7 +553,8 @@ async function crearOrden() {
     const [orden] = await sb.post('orden', {
       empleado:    parseInt(empId),
       numero_mesa: mesaSel || null
-      // fecha y estado se ponen solos con DEFAULT
+      // fecha, estado y numero_dia (el "N.° 1, 2, 3..." que se reinicia
+      // cada día) se ponen solos con DEFAULT/trigger
     });
 
     // 2. Crear el detalle — DDL: id_orden refs orden.id, id_platillo refs platillo.id
@@ -564,7 +567,7 @@ async function crearOrden() {
     await sb.post('detalle_orden', detalles);
 
     const total = items.reduce((s, [, v]) => s + v.precio * v.cantidad, 0);
-    showToast(`Orden #${orden.id} creada${mesaSel ? ' — Mesa ' + mesaSel : ''} — ${fmt(total)} 🛒`);
+    showToast(`Orden #${orden.numero_dia} creada${mesaSel ? ' — Mesa ' + mesaSel : ''} — ${fmt(total)} 🛒`);
     closeModal('modalOrden');
     limpiarCarrito();
     document.getElementById('ord-empleado').value = '';
@@ -1047,7 +1050,7 @@ async function loadCaja() {
 
     // Traer órdenes de hoy con detalle para calcular total
     const ordenes = await sb.get('orden',
-      `select=id,fecha,empleado,numero_mesa,nombre_cliente,detalle_orden(id,cantidad,platillo(id,nombre,precio,categorias(nombre)))&fecha=gte.${hoy}&order=id.desc`
+      `select=id,numero_dia,fecha,empleado,numero_mesa,nombre_cliente,detalle_orden(id,cantidad,platillo(id,nombre,precio,categorias(nombre)))&fecha=gte.${hoy}&order=id.desc`
     );
 
     // Órdenes ya con ingreso registrado
@@ -1072,7 +1075,7 @@ async function loadCaja() {
       return `
         <div class="caja-card">
           <div class="caja-card-header">
-            <div class="caja-orden-num">Orden #${o.id}</div>
+            <div class="caja-orden-num">Orden #${o.numero_dia}</div>
             <span class="caja-badge">⏳ Pendiente</span>
           </div>
           <div class="caja-info">${origen}</div>
@@ -1157,8 +1160,10 @@ async function verTicket(idOrden, total) {
 
   // Traer datos de la orden para saber si fue tomada por un mesero o es pedido para llevar
   let origenHTML = '';
+  let numeroDia = idOrden;
   try {
-    const [orden] = await sb.get('orden', `select=numero_mesa,nombre_cliente,empleado&id=eq.${idOrden}`);
+    const [orden] = await sb.get('orden', `select=numero_dia,numero_mesa,nombre_cliente,empleado&id=eq.${idOrden}`);
+    if (orden?.numero_dia) numeroDia = orden.numero_dia;
     if (orden?.empleado) {
       const emp = allEmpleados.find(e => e.id === orden.empleado);
       origenHTML = orden.numero_mesa
@@ -1179,7 +1184,7 @@ async function verTicket(idOrden, total) {
     <hr class="ticket-divider">
     <div style="text-align:center;margin-bottom:0.5rem">${origenHTML}</div>
     <hr class="ticket-divider">
-    <div class="ticket-line"><span>Orden:</span><span>#${idOrden}</span></div>
+    <div class="ticket-line"><span>Orden:</span><span>#${numeroDia}</span></div>
     <hr class="ticket-divider">
     ${lineasDetalle}
     <hr class="ticket-divider">
@@ -1261,9 +1266,9 @@ async function loadResenas() {
 ════════════════════════════════════════════════ */
 let ordenAmpliarId = null;
 
-function ampliarOrden(idOrden) {
+function ampliarOrden(idOrden, numeroDia) {
   ordenAmpliarId = idOrden;
-  document.getElementById('modalOrdenTitulo').textContent = `Agregar más a la Orden #${idOrden}`;
+  document.getElementById('modalOrdenTitulo').textContent = `Agregar más a la Orden #${numeroDia ?? idOrden}`;
   document.getElementById('modalOrdenBtnConfirm').textContent = 'Agregar Platillos';
   document.getElementById('modalOrdenAmpliarBanner').style.display = 'block';
   document.getElementById('ordenMetaFields').style.display = 'none';
@@ -1321,7 +1326,7 @@ async function loadCocina() {
   try {
     const hoy = new Date().toISOString().slice(0, 10);
     const ordenes = await sb.get('orden',
-      `select=id,fecha,numero_mesa,nombre_cliente,estado,empleado,detalle_orden(id,cantidad,nota,ronda,entregado,platillo(nombre,categorias(nombre)))&fecha=gte.${hoy}&order=id.asc`
+      `select=id,numero_dia,fecha,numero_mesa,nombre_cliente,estado,empleado,detalle_orden(id,cantidad,nota,ronda,entregado,platillo(nombre,categorias(nombre)))&fecha=gte.${hoy}&order=id.asc`
     );
     const activas = ordenes.filter(o => (o.detalle_orden || []).some(d => !d.entregado));
     comandasCache = {};
@@ -1365,7 +1370,7 @@ async function loadCocina() {
         <div class="orden-card">
           <div onclick="abrirComandaGrande(${o.id})" style="cursor:pointer;">
             <div class="orden-header">
-              <div class="orden-mesa-num">N.° ${o.id}</div>
+              <div class="orden-mesa-num">N.° ${o.numero_dia}</div>
               <span class="badge badge-activa">${esc(o.estado)}</span>
             </div>
             <div style="font-size:13px;color:var(--text-light);margin-bottom:.5rem">${origen}</div>
@@ -1373,7 +1378,7 @@ async function loadCocina() {
               ${lineasHTML}
             </div>
           </div>
-          <button class="action-btn" style="width:100%" onclick="ampliarOrden(${o.id})">➕ Agregar más a esta orden</button>
+          <button class="action-btn" style="width:100%" onclick="ampliarOrden(${o.id}, ${o.numero_dia})">➕ Agregar más a esta orden</button>
         </div>
       `;
     }).join('');
@@ -1438,7 +1443,7 @@ function abrirComandaGrande(idOrden) {
 
   document.getElementById('comandaGrandeContenido').innerHTML = `
     <div style="text-align:center;margin-bottom:1.5rem;">
-      <div style="font-family:var(--heading-font);font-size:3rem;color:var(--accent-color);">N.° ${o.id}</div>
+      <div style="font-family:var(--heading-font);font-size:3rem;color:var(--accent-color);">N.° ${o.numero_dia}</div>
       <div style="font-size:1.2rem;color:var(--text-light);margin-top:.3rem;">${origen}</div>
       <span class="badge badge-activa" style="font-size:1rem;margin-top:.5rem;display:inline-block;">${esc(o.estado)}</span>
     </div>
