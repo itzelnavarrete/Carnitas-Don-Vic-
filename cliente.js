@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════════════
-   cliente.js — Carnitas Don Vic (PÁGINA PÚBLICA)
-   Requiere: config.js + shared.js cargados ANTES que este archivo.
-   Sin controles de administración — solo lo que ve el cliente.
-═══════════════════════════════════════════════════ */
 
 let carrito = {};              // { id_platillo: { nombre, precio, cantidad, categoria } }
 let estrellaSeleccionada = 0;
@@ -26,7 +21,7 @@ const GOOGLE_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=C
 /* ════════════════════════════════════════════════
    MENÚ + PEDIDO
 ════════════════════════════════════════════════ */
-const ORDEN_CATEGORIAS = ['Tacos', 'Antojitos', 'Órdenes por kilo', 'Bebidas'];
+const ORDEN_CATEGORIAS = ['Tacos', 'Tortas', 'Quesadillas y Gorditas', 'Órdenes por kilo', 'Bebidas'];
 
 async function loadMenuPublico() {
   const wrap = document.getElementById('menuPublicoGrid');
@@ -77,7 +72,8 @@ async function loadMenuPublico() {
 function catKey(nombreCategoria) {
   const c = (nombreCategoria || '').toLowerCase();
   if (c.includes('bebida')) return 'bebidas';
-  if (c.includes('antojito')) return 'antojitos';
+  if (c.includes('torta')) return 'tortas';
+  if (c.includes('quesadilla') || c.includes('gordita') || c.includes('antojito')) return 'antojitos';
   if (c.includes('kilo') || c.includes('orden')) return 'kilo';
   return 'tacos';
 }
@@ -219,8 +215,9 @@ function quitarDelCarrito(id) {
 function esBebida(v) { return v.categoria === 'Bebidas'; }
 function esCombo(v)  { return /combinad|doble/i.test(v.nombre); }
 function esTaco(v)   { return v.categoria === 'Tacos'; }
+function esTorta(v)  { return v.categoria === 'Tortas'; }
 function esGordita(v) { return /gordita/i.test(v.nombre); }
-function llevaCebollaCilantro(v) { return esTaco(v) || esGordita(v); }
+function llevaCebollaCilantro(v) { return esTaco(v) || esTorta(v) || esGordita(v); }
 const esParaLlevar = !mesaActual;
 let verduraAparteGlobal = false;
 
@@ -442,6 +439,8 @@ async function enviarPedido() {
       numero_mesa:    mesaActual || null,
       nombre_cliente: nombreCliente || null,
       estado:         'pendiente'
+      // numero_dia (el "N.° 1, 2, 3..." que se reinicia cada día) lo calcula
+      // solo un trigger en Supabase — no hace falta mandarlo desde aquí.
     });
     const detalles = items.map(([id, v]) => ({
       id_orden:    orden.id,
@@ -462,7 +461,7 @@ async function enviarPedido() {
     conf.innerHTML = `
       <div style="font-size:3rem">🌮</div>
       <h3 style="margin-top:0.5rem">¡Pedido recibido!</h3>
-      <div style="font-family:var(--heading-font);font-size:2.2rem;color:var(--accent-color);margin:0.75rem 0">N.° ${orden.id}</div>
+      <div style="font-family:var(--heading-font);font-size:2.2rem;color:var(--accent-color);margin:0.75rem 0">N.° ${orden.numero_dia}</div>
       <p style="color:var(--text-light);font-size:14px">
         ${nombreCliente ? `Gracias, ${esc(nombreCliente)}. ` : ''}Guarda tu número de pedido — te avisaremos cuando esté listo.
       </p>`;
