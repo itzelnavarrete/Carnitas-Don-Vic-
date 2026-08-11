@@ -203,6 +203,26 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
 .btn-cta-green { background: var(--cta-green); border-color: var(--cta-green); color: #fff; }
 .btn-cta-green:hover { background: var(--cta-green-hover); border-color: var(--cta-green-hover); }
 
+/* ── Hero en dos columnas (texto + foto real de comida) ──
+   Solo aplica dentro de .hero-papel — no toca el hero genérico ni el
+   panel admin, que usan otras clases. */
+.hero-content-split {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 3rem; text-align: left; max-width: 1100px;
+}
+.hero-text-col { flex: 1 1 420px; }
+.hero-actions-left { justify-content: flex-start; }
+.hero-photo-col { flex: 1 1 380px; display: flex; justify-content: center; }
+.hero-food-foto {
+  width: 100%; max-width: 420px; aspect-ratio: 4/3; object-fit: cover;
+  border-radius: var(--r-lg);
+  box-shadow: 0 20px 50px rgba(0,0,0,.45), inset 0 0 0 6px rgba(255,255,255,.15);
+}
+@media (max-width: 800px) {
+  .hero-content-split { flex-direction: column; text-align: center; }
+  .hero-actions-left { justify-content: center; }
+}
+
 @media (max-width: 700px) {
   .hero-ghost-text { font-size: 22vw; }
   .hero-plato-foto { width: 260px; height: 260px; }
