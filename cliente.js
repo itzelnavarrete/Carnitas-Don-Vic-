@@ -1,8 +1,13 @@
-
+/* ═══════════════════════════════════════════════════
+   cliente.js — Carnitas Don Vic (PÁGINA PÚBLICA)
+   Requiere: config.js + shared.js cargados ANTES que este archivo.
+   Sin controles de administración — solo lo que ve el cliente.
+═══════════════════════════════════════════════════ */
 
 let carrito = {};              // { id_platillo: { nombre, precio, cantidad, categoria } }
 let estrellaSeleccionada = 0;
 let bebidasDisponibles = [];   // se llena en loadMenuPublico, para las promos
+let menuAgrupado = {};         // { 'Tacos': [...], 'Tortas': [...], ... } — para el modal por categoría
 let promo3TacosReclamada = false;
 
 // Si vino de un QR de mesa: ?mesa=5  →  se liga el pedido/reseña a esa mesa.
@@ -42,21 +47,20 @@ async function loadMenuPublico() {
       const cat = p.categorias?.nombre || 'Otros';
       (grupos[cat] = grupos[cat] || []).push(p);
     });
+    menuAgrupado = grupos; // se reutiliza en abrirModalCategoria()
 
-    // Orden fijo: Tacos → Antojitos → Órdenes por kilo → Bebidas → cualquier otra al final
+    // Orden fijo: Tacos → Tortas → Quesadillas y Gorditas → Órdenes por kilo → Bebidas → cualquier otra al final
     const categoriasOrdenadas = [
       ...ORDEN_CATEGORIAS.filter(c => grupos[c]),
       ...Object.keys(grupos).filter(c => !ORDEN_CATEGORIAS.includes(c))
     ];
 
-    wrap.innerHTML = categoriasOrdenadas.map(cat => `
-      <div class="menu-cat-seccion">
-        <h3 class="menu-cat-titulo">${esc(cat)}</h3>
-        <div class="menu-grid">
-          ${grupos[cat].map(p => tarjetaPlatillo(p)).join('')}
-        </div>
-      </div>
-    `).join('');
+    // En vez de listar los ~40 platillos de golpe, mostramos tarjetas
+    // grandes por categoría — al tocar una se abre el modal con esos
+    // platillos nada más (ver abrirModalCategoria).
+    wrap.innerHTML = `<div class="categorias-grid">${
+      categoriasOrdenadas.map(cat => tarjetaCategoria(cat, grupos[cat])).join('')
+    }</div>`;
   } catch (e) {
     wrap.innerHTML = `<div class="empty-state">
       <p>⚠️ No pudimos cargar el menú en este momento.</p>
@@ -68,6 +72,45 @@ async function loadMenuPublico() {
     </div>`;
     console.error(e);
   }
+}
+
+// Foto representativa que se usa en la tarjeta grande de cada categoría
+// (no es la foto de cada platillo individual, solo la portada del grupo).
+const FOTO_CATEGORIA = {
+  'Tacos':                    'img/taco-maciza.jpg',
+  'Tortas':                   'img/torta-maciza.png',
+  'Quesadillas y Gorditas':   'img/gordita-doble.jpg',
+  'Órdenes por kilo':         'img/kilo-maciza.jpg',
+  'Bebidas':                  'img/agua-jamaica.jpg'
+};
+
+function tarjetaCategoria(cat, items) {
+  const foto = FOTO_CATEGORIA[cat] || (items.find(p => p.imagen_url) || {}).imagen_url;
+  return `
+    <div class="categoria-tile" onclick="abrirModalCategoria('${esc(cat)}')">
+      <div class="categoria-tile-foto">
+        ${foto
+          ? `<img src="${esc(foto)}" alt="${esc(cat)}"/>`
+          : `<div class="categoria-tile-emoji">${getEmoji(cat)}</div>`}
+      </div>
+      <h3>${esc(cat)}</h3>
+      <span class="categoria-tile-count">${items.length} opciones</span>
+    </div>`;
+}
+
+function abrirModalCategoria(cat) {
+  const items = menuAgrupado[cat] || [];
+  document.getElementById('modalCategoriaTitulo').textContent = cat;
+  document.getElementById('modalCategoriaGrid').innerHTML = items.map(p => tarjetaPlatillo(p)).join('');
+  document.getElementById('modalCategoria').style.display = 'flex';
+}
+
+function cerrarModalCategoria() {
+  document.getElementById('modalCategoria').style.display = 'none';
+}
+
+function cerrarModalCategoriaOutside(e) {
+  if (e.target === e.currentTarget) cerrarModalCategoria();
 }
 
 function catKey(nombreCategoria) {
