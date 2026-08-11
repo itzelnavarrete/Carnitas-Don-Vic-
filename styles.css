@@ -21,6 +21,13 @@
     /* acento secundario — cempasúchil, usado con moderación */
     --marigold: #E3A23B;
 
+    /* Tono "madera" para el hero de cliente.html, inspirado en la
+       referencia que compartió Itzel — solo se usa ahí, no en admin. */
+    --wood-dark: #3E2712;
+    --wood-mid: #6B4226;
+    --cta-green: #2E7D32;
+    --cta-green-hover: #24631F;
+
     /* Colores por categoría — para los medallones de icono, más vivos */
     --cat-tacos: #C6491E;      /* achiote */
     --cat-tortas: #C98A3D;     /* pan tostado */
@@ -135,21 +142,23 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
    No toca .hero base (usado también en admin.html); todo va con
    clases -papel adicionales para no romper el panel admin. */
 .hero-papel {
-  background: linear-gradient(155deg, #F2E4C6 0%, #E9D5A8 100%);
-  position: relative; overflow: hidden; color: var(--text-color);
+  background: linear-gradient(155deg, var(--wood-mid) 0%, var(--wood-dark) 100%);
+  position: relative; overflow: hidden; color: #fff;
   padding-bottom: 4rem;
 }
 .hero-ghost-text {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   font-family: var(--heading-font); font-weight: 700; font-size: 13vw;
-  color: rgba(122,74,43,.10); white-space: nowrap; letter-spacing: .02em;
+  color: rgba(255,255,255,.06); white-space: nowrap; letter-spacing: .02em;
   z-index: 0; pointer-events: none; user-select: none;
 }
 .hero-content-papel { position: relative; z-index: 2; }
-.hero-title-papel { color: var(--text-color); text-shadow: none; }
-.title-highlight-papel { color: var(--accent-color); text-shadow: none; }
-.hero-desc-papel { color: var(--text-color); opacity: .8; text-shadow: none; }
-.hero-tag#mesaBanner { color: var(--accent-hover); border-color: var(--accent-color); }
+.hero-title-papel { color: #fff; text-shadow: none; }
+.title-highlight-papel { color: var(--marigold); text-shadow: none; }
+.hero-desc-papel { color: #F2E4C6; opacity: .95; text-shadow: none; }
+.hero-papel .hero-tag#mesaBanner { color: var(--marigold); border-color: var(--marigold); }
+.hero-papel .btn-secondary-papel { color: #fff; border-color: rgba(255,255,255,.65); }
+.hero-papel .btn-secondary-papel:hover { background: rgba(255,255,255,.12); color: #fff; }
 
 .hero-plato-wrap { position: relative; display: inline-block; margin: .25rem 0 1.5rem; }
 .hero-plato-foto {
@@ -188,6 +197,11 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
     92% 56%, 96% 30%, 100% 55%, 100% 100%
   );
 }
+
+/* Botón verde estilo "Hacer Pedido" de la referencia — solo se usa en
+   el CTA principal del hero de cliente.html. */
+.btn-cta-green { background: var(--cta-green); border-color: var(--cta-green); color: #fff; }
+.btn-cta-green:hover { background: var(--cta-green-hover); border-color: var(--cta-green-hover); }
 
 @media (max-width: 700px) {
   .hero-ghost-text { font-size: 22vw; }
