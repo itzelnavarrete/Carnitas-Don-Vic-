@@ -87,14 +87,16 @@ const FOTO_CATEGORIA = {
 function tarjetaCategoria(cat, items) {
   const foto = FOTO_CATEGORIA[cat] || (items.find(p => p.imagen_url) || {}).imagen_url;
   return `
-    <div class="categoria-tile" onclick="abrirModalCategoria('${esc(cat)}')">
+    <div class="categoria-tile" data-cat="${catKey(cat)}" onclick="abrirModalCategoria('${esc(cat)}')">
       <div class="categoria-tile-foto">
         ${foto
           ? `<img src="${esc(foto)}" alt="${esc(cat)}"/>`
           : `<div class="categoria-tile-emoji">${getEmoji(cat)}</div>`}
+        <div class="categoria-tile-scrim">
+          <h3>${esc(cat)}</h3>
+          <span class="categoria-tile-count">${items.length} opciones</span>
+        </div>
       </div>
-      <h3>${esc(cat)}</h3>
-      <span class="categoria-tile-count">${items.length} opciones</span>
     </div>`;
 }
 
