@@ -1,31 +1,38 @@
+/* ═══════════════════════════════════════════════════
+   CARNITAS DON VIC — Sistema de Gestión
+   Estética: comal caliente, achiote, masa y hoja de plátano.
+   Paleta y tipografía propias — no plantilla genérica.
+═══════════════════════════════════════════════════ */
 
 :root {
-    /* Paleta colores*/
-    --primary-color: #FBF2DF;    
-    --secondary-color: #FFFDF8;  
-    --accent-color: #C6491E;     
+    /* Paleta "puesto de carnitas" */
+    --primary-color: #FBF2DF;    /* masa / cuenco de loza */
+    --secondary-color: #FFFDF8;  /* tarjetas */
+    --accent-color: #C6491E;     /* achiote / chile guajillo tostado */
     --accent-hover: #A3390F;
-    --text-color: #2B2018;       
+    --text-color: #2B2018;       /* comal quemado */
     --text-light: #8A7666;
 
     /* Estados Semánticos */
-    --success: #5C7A3F;   
-    --warning: #C48A2E;  
+    --success: #5C7A3F;   /* aguacate */
+    --warning: #C48A2E;   /* mostaza */
     --danger: #A23B2E;
+
+    /* acento secundario — cempasúchil, usado con moderación */
     --marigold: #E3A23B;
 
-    /* Colores icono */
-    --cat-tacos: #C6491E;      
-    --cat-tortas: #C98A3D;     
-    --cat-qyg: #E3A23B;  
-    --cat-bebidas: #2E8B9C;    
-    --cat-kilo: #7A4A2B;      
+    /* Colores por categoría — para los medallones de icono, más vivos */
+    --cat-tacos: #C6491E;      /* achiote */
+    --cat-tortas: #C98A3D;     /* pan tostado */
+    --cat-antojitos: #E3A23B;  /* marigold */
+    --cat-bebidas: #2E8B9C;    /* azul-verde fresco, contrasta con lo cálido */
+    --cat-kilo: #7A4A2B;       /* cuero/madera */
 
     /* Tipografía */
     --heading-font: 'Fraunces', serif;
     --font-body: 'Sora', sans-serif;
 
-    /* Layout */
+    /* Layout — esquinas más amables, ambiente de puesto/mercado */
     --section-padding: 6rem 0;
     --r-sm: 8px;
     --r-md: 14px;
@@ -633,6 +640,25 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
   margin: -.3rem 0 .9rem; opacity: .85;
 }
 #pedido .menu-card-footer { flex-direction: column; gap: .3rem; }
+
+/* ── Tarjetas grandes de categoría (cliente.html) — reemplazan el
+   listado largo de ~40 platillos; al tocar una se abre el modal con
+   solo esa categoría. ── */
+.categorias-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+.categoria-tile {
+  background: #fff; border-radius: var(--r-lg); overflow: hidden;
+  cursor: pointer; box-shadow: var(--shadow-sm); text-align: center;
+  padding-bottom: 1.5rem; transition: transform .2s ease, box-shadow .2s ease;
+}
+.categoria-tile:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.categoria-tile-foto { width: 100%; aspect-ratio: 4/3; overflow: hidden; background: var(--primary-color); }
+.categoria-tile-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.categoria-tile-emoji { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+.categoria-tile h3 { margin-top: 1rem; font-size: 1.3rem; }
+.categoria-tile-count { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); }
 
 /* ── Carrusel de reseñas — "escalera eléctrica" (cliente.html) ──
    Reutiliza la misma técnica del .promo-marquee (translateX infinito),
