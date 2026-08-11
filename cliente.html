@@ -98,6 +98,15 @@
           3. Confirma y guarda tu número de pedido — te avisaremos cuando esté listo.</p>
         </div>
       </div>
+
+      <!-- Modal por categoría — se abre al tocar una tarjeta grande (Tacos, Tortas, etc.) -->
+      <div class="modal-overlay" id="modalCategoria" onclick="cerrarModalCategoriaOutside(event)">
+        <div class="modal modal-lg">
+          <button class="modal-close" onclick="cerrarModalCategoria()">✕</button>
+          <h3 class="modal-title" id="modalCategoriaTitulo">Categoría</h3>
+          <div id="modalCategoriaGrid" class="menu-grid"></div>
+        </div>
+      </div>
     </div>
   </section>
 
