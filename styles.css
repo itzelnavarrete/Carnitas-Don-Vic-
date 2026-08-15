@@ -732,6 +732,18 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
 .categoria-tile[data-cat="kilo"]::before       { background: var(--cat-kilo); }
 .categoria-tile[data-cat="bebidas"]::before    { background: var(--cat-bebidas); }
 
+/* Chrome en Android tiene un bug conocido: grid-template-columns con
+   auto-fill + minmax combinado con aspect-ratio en las tarjetas puede
+   calcular mal el alto de algunas columnas en pantallas angostas,
+   dejando esas tarjetas con alto 0 (existen en el HTML pero no se ven).
+   En vez de dejar que el navegador "adivine" cuántas columnas caben,
+   forzamos 2 columnas fijas y una altura mínima explícita en móvil —
+   así no hay cálculo ambiguo que pueda fallar. */
+@media (max-width: 600px) {
+  .categorias-grid { grid-template-columns: repeat(2, 1fr); }
+  .categoria-tile { aspect-ratio: auto; min-height: 160px; }
+}
+
 /* Encabezado con más carácter para "Arma tu pedido" — flourish tipo
    banderines a los lados, solo dentro de #pedido para no afectar
    ninguna otra sección ni el panel admin. */
