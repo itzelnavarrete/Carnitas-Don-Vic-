@@ -716,21 +716,12 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
 .categoria-tile-count {
   font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;
   padding: 3px 10px; border-radius: 20px; display: inline-block;
+  background: var(--ref-red, var(--accent-color)); color: #fff;
 }
-/* Color de acento por categoría — reutiliza tus --cat-* existentes */
-.categoria-tile[data-cat="tacos"]      .categoria-tile-count { background: var(--cat-tacos); }
-.categoria-tile[data-cat="tortas"]     .categoria-tile-count { background: var(--cat-tortas); }
-.categoria-tile[data-cat="antojitos"]  .categoria-tile-count { background: var(--cat-antojitos); color: #2B2018; }
-.categoria-tile[data-cat="kilo"]       .categoria-tile-count { background: var(--cat-kilo); }
-.categoria-tile[data-cat="bebidas"]    .categoria-tile-count { background: var(--cat-bebidas); }
 .categoria-tile::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; z-index: 2;
+  background: var(--ref-orange, var(--marigold));
 }
-.categoria-tile[data-cat="tacos"]::before      { background: var(--cat-tacos); }
-.categoria-tile[data-cat="tortas"]::before     { background: var(--cat-tortas); }
-.categoria-tile[data-cat="antojitos"]::before  { background: var(--cat-antojitos); }
-.categoria-tile[data-cat="kilo"]::before       { background: var(--cat-kilo); }
-.categoria-tile[data-cat="bebidas"]::before    { background: var(--cat-bebidas); }
 
 /* Chrome en Android tiene un bug conocido: grid-template-columns con
    auto-fill + minmax combinado con aspect-ratio en las tarjetas puede
