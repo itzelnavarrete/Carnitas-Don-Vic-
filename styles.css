@@ -741,7 +741,7 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
    así no hay cálculo ambiguo que pueda fallar. */
 @media (max-width: 600px) {
   .categorias-grid { grid-template-columns: repeat(2, 1fr); }
-  .categoria-tile { aspect-ratio: auto; min-height: 160px; }
+  .categoria-tile { aspect-ratio: auto; height: 160px; }
 }
 
 /* Encabezado con más carácter para "Arma tu pedido" — flourish tipo
@@ -806,3 +806,199 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
   font-size: 13px; font-weight: 600; text-decoration: none;
 }
 .btn-google:hover { box-shadow: var(--shadow-sm); border-color: #dadce0; }
+
+/* ═══════════════════════════════════════════════════
+   REDISEÑO "REFERENCIA" — SOLO cliente.html
+   Todo con prefijo .ref- para no tocar nada de admin.html
+   ni de las clases anteriores (que se quedan intactas por
+   si se vuelven a necesitar).
+═══════════════════════════════════════════════════ */
+:root {
+  --ref-bg: #F5ECDC;
+  --ref-text: #241C14;
+  --ref-text-light: #6B5D4C;
+  --ref-red: #C0392B;
+  --ref-red-hover: #A5301F;
+  --ref-orange: #F4A93B;
+  --ref-dark: #1C140C;
+  --ref-border: #E7D9BC;
+  --ref-display-font: 'Anton', var(--heading-font), sans-serif;
+}
+
+.ref-body { background: var(--ref-bg); color: var(--ref-text); }
+
+/* ── Nav ── */
+.ref-nav {
+  position: fixed; top: 0; width: 100%; z-index: 1000;
+  background: var(--ref-bg); border-bottom: 1px solid var(--ref-border);
+  padding: .85rem 0;
+}
+.ref-nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+}
+.ref-logo {
+  font-family: var(--ref-display-font); font-size: 1.4rem; color: var(--ref-text);
+  display: flex; align-items: center; gap: .5rem;
+}
+.ref-logo-flame {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%; background: var(--ref-red);
+  font-size: 15px;
+}
+.ref-logo-accent { color: var(--ref-red); }
+.ref-nav-links { display: flex; gap: 1.75rem; list-style: none; }
+.ref-nav-links a { font-size: 14px; font-weight: 600; color: var(--ref-text); }
+.ref-nav-links a:hover { color: var(--ref-red); }
+.ref-cart-btn {
+  background: var(--ref-red); color: #fff; border: none; padding: 10px 18px;
+  border-radius: 30px; font-family: var(--font-body); font-weight: 700; font-size: 13px;
+  cursor: pointer; display: flex; align-items: center; gap: .4rem; position: relative;
+}
+.ref-cart-btn:hover { background: var(--ref-red-hover); }
+.ref-cart-badge {
+  background: #fff; color: var(--ref-red); border-radius: 50%; width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+}
+@media (max-width: 800px) {
+  .ref-nav-links { display: none; }
+}
+
+/* ── Hero ── */
+.ref-hero {
+  position: relative; min-height: 92vh; display: flex; align-items: center;
+  padding: 7rem 2rem 4rem;
+  background: linear-gradient(160deg, #3a2b1a, #1c140c), url('img/taco-maciza.jpg') center/cover;
+  background-blend-mode: multiply;
+}
+.ref-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(20,14,8,.35) 0%, rgba(20,14,8,.75) 85%);
+}
+.ref-hero-content { position: relative; z-index: 2; max-width: 900px; margin: 0 auto; width: 100%; }
+.ref-hero-tag {
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ref-orange);
+  font-weight: 700; margin-bottom: 1.25rem;
+}
+.ref-hero-title {
+  font-family: var(--ref-display-font); font-size: clamp(2.6rem, 7vw, 5.5rem);
+  color: #FBF6EA; line-height: 1.02; margin-bottom: 1.25rem; text-transform: none;
+}
+.ref-hl {
+  background: var(--ref-orange); color: var(--ref-dark); padding: 0 .3rem; box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.ref-hero-desc { color: #E9DFCC; font-size: 1.05rem; max-width: 640px; margin-bottom: 2rem; line-height: 1.6; }
+.ref-hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.ref-btn-primary, .ref-btn-outline, .ref-btn-dark {
+  font-family: var(--font-body); font-weight: 700; font-size: 14px; padding: 14px 26px;
+  border-radius: var(--r-sm); cursor: pointer; display: inline-flex; align-items: center; gap: .5rem;
+  text-decoration: none; border: 2px solid transparent;
+}
+.ref-btn-primary { background: var(--ref-red); color: #fff; }
+.ref-btn-primary:hover { background: var(--ref-red-hover); }
+.ref-btn-outline { background: transparent; color: #fff; border-color: rgba(255,255,255,.7); }
+.ref-btn-outline:hover { background: rgba(255,255,255,.12); }
+.ref-btn-dark { background: var(--ref-dark); color: #fff; }
+.ref-btn-dark:hover { background: #000; }
+.ref-btn-outline-light {
+  display: inline-flex; align-items: center; gap: .4rem; margin-top: .6rem;
+  background: var(--ref-orange); color: var(--ref-dark); font-weight: 700; font-size: 13px;
+  padding: 10px 18px; border-radius: var(--r-sm); text-decoration: none;
+}
+
+/* ── Secciones genéricas del rediseño ── */
+.ref-section-menu { padding: 5rem 0; }
+.ref-section-alt { background: #FFFDF7; border-top: 1px solid var(--ref-border); border-bottom: 1px solid var(--ref-border); }
+.ref-section-header { margin-bottom: 2.5rem; max-width: 700px; }
+.ref-pill {
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ref-red);
+  font-weight: 800; margin-bottom: .75rem;
+}
+.ref-pill-light { color: var(--ref-orange); }
+.ref-section-title {
+  font-family: var(--ref-display-font); font-size: clamp(2rem, 4.5vw, 3.2rem);
+  color: var(--ref-text); line-height: 1.05; margin-bottom: 1rem; text-transform: none;
+}
+.ref-title-light { color: #FBF6EA; }
+.ref-section-sub { color: var(--ref-text-light); font-size: 1rem; max-width: 620px; }
+
+/* ── Cuadrícula plana del menú (sin categorías separadas) ── */
+.ref-menu-wrap { margin-bottom: 3rem; }
+.menu-flat-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.75rem;
+}
+.dish-card {
+  background: #fff; border: 1px solid var(--ref-border); border-radius: var(--r-md);
+  overflow: hidden; display: flex; flex-direction: column;
+  box-shadow: 0 4px 14px rgba(36,28,20,.06);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.dish-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(36,28,20,.16); }
+.dish-photo-wrap { position: relative; aspect-ratio: 4/3; background: #eee; }
+.dish-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dish-photo-emoji { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+.dish-price {
+  position: absolute; top: 12px; right: 12px; background: rgba(20,14,8,.78); color: #fff;
+  font-family: var(--ref-display-font); font-size: .95rem; padding: 5px 12px; border-radius: 20px;
+  letter-spacing: .5px;
+}
+.dish-title { font-family: var(--font-body); font-size: 1.15rem; font-weight: 800; margin: 1rem 1.1rem .35rem; color: var(--ref-text); }
+.dish-desc { font-size: 13px; color: var(--ref-text-light); margin: 0 1.1rem .5rem; line-height: 1.45; flex: 1; }
+.dish-nota { font-size: 11.5px; color: var(--ref-red); margin: 0 1.1rem .5rem; }
+.dish-btn {
+  margin: 0 1.1rem 1.1rem; background: var(--ref-red); color: #fff; border: none;
+  padding: 12px; border-radius: var(--r-sm); font-family: var(--font-body); font-weight: 700;
+  font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .4rem;
+}
+.dish-btn:hover { background: var(--ref-red-hover); }
+.dish-btn-plus { font-size: 1.1rem; line-height: 1; }
+.dish-card.recien-agregado { animation: card-pop .45s ease; }
+
+/* ── Carrito / eventos (tarjetas tipo "panel") ── */
+.ref-cart-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+.ref-cart-card {
+  background: #fff; border: 1px solid var(--ref-border); border-radius: var(--r-md);
+  padding: 1.75rem; text-align: left;
+}
+.ref-cart-card h3 { font-family: var(--font-body); font-weight: 800; font-size: 1.15rem; margin-bottom: .5rem; }
+.ref-cart-total {
+  display: flex; justify-content: space-between; font-weight: 800; font-size: 1.3rem;
+  color: var(--ref-red); border-top: 1px solid var(--ref-border); padding-top: 1rem; margin-bottom: 1rem;
+}
+.ref-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--ref-text-light); margin: 1rem 0 .4rem; }
+.ref-input {
+  width: 100%; padding: 11px 14px; border: 1px solid var(--ref-border); border-radius: var(--r-sm);
+  font-family: var(--font-body); font-size: 14px; box-sizing: border-box; background: #FCFAF3;
+}
+@media (max-width: 800px) { .ref-cart-layout { grid-template-columns: 1fr; } }
+
+/* ── Reseñas ── */
+.ref-section-resenas { padding: 5rem 0; background: var(--ref-bg); }
+.ref-resenas-top { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; margin-bottom: 2.5rem; }
+.ref-resenas-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; }
+@media (max-width: 800px) { .ref-resenas-layout { grid-template-columns: 1fr; } }
+.resena-empty { text-align: center; padding: 2.5rem 1rem; color: var(--ref-text-light); }
+.resena-empty-icon { font-size: 2rem; margin-bottom: .5rem; }
+.resena-empty-sub { font-size: 13px; margin-top: .25rem; }
+.resena-card-publica { padding: 1.1rem 0; border-bottom: 1px solid var(--ref-border); }
+.resena-card-publica:last-child { border-bottom: none; }
+.resena-card-publica .rc-stars { color: var(--ref-red); font-size: 1rem; margin-bottom: .3rem; }
+.resena-card-publica .rc-comentario { font-size: 14.5px; margin-bottom: .3rem; }
+.resena-card-publica .rc-autor { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--ref-text-light); }
+
+/* ── Ubicación ── */
+.ref-section-ubicacion { background: var(--ref-dark); color: #EFE6D6; padding: 5rem 0; }
+.ref-ubicacion-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 2rem; align-items: start; }
+@media (max-width: 800px) { .ref-ubicacion-layout { grid-template-columns: 1fr; } }
+.ref-ubicacion-item { display: flex; gap: 1rem; margin-bottom: 2rem; }
+.ref-ubicacion-icono {
+  flex-shrink: 0; width: 42px; height: 42px; border-radius: 10px; background: rgba(244,169,59,.15);
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.ref-ubicacion-item h3 { font-family: var(--font-body); font-weight: 800; font-size: 1.05rem; margin-bottom: .35rem; color: #fff; }
+.ref-ubicacion-item p { color: #C9BEA8; font-size: 14px; line-height: 1.5; }
+.ref-mapa-wrap { border-radius: var(--r-md); overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,.4); }
+
+/* ── Footer ── */
+.ref-footer { background: var(--ref-dark); border-top: 1px solid rgba(255,255,255,.08); padding: 2.5rem 0; }
