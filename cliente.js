@@ -7,7 +7,6 @@
 let carrito = {};              // { id_platillo: { nombre, precio, cantidad, categoria } }
 let estrellaSeleccionada = 0;
 let bebidasDisponibles = [];   // se llena en loadMenuPublico, para las promos
-let menuAgrupado = {};         // { 'Tacos': [...], 'Tortas': [...], ... } — para el modal por categoría
 let promo3TacosReclamada = false;
 
 // Si vino de un QR de mesa: ?mesa=5  →  se liga el pedido/reseña a esa mesa.
@@ -25,9 +24,33 @@ const RECARGO_KG_COMER_AQUI = mesaActual ? 10 / 1000 : 0; // por gramo
 const GOOGLE_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=ChIJNwvxFDP60YUR90ryIu0r_vE';
 
 /* ════════════════════════════════════════════════
-   MENÚ + PEDIDO
+   MENÚ + PEDIDO — cuadrícula plana, sin tarjetas por
+   categoría ni modal: todos los platillos (tacos,
+   bebidas, kilo, etc.) salen juntos en una sola lista,
+   ordenados de forma consistente.
 ════════════════════════════════════════════════ */
 const ORDEN_CATEGORIAS = ['Tacos', 'Tortas', 'Quesadillas y Gorditas', 'Órdenes por kilo', 'Bebidas'];
+
+// Descripción genérica por categoría — la base de datos no guarda una
+// descripción por platillo, así que usamos una frase por categoría
+// (igual que antes, solo que ahora se ve en cada tarjeta de la cuadrícula).
+const DESCRIPCION_CATEGORIA = {
+  'Tacos':                  'Carnitas estilo Michoacán en tortilla recién hecha, con cebolla y cilantro.',
+  'Tortas':                 'Telera crujiente rellena de carnitas doraditas al punto.',
+  'Quesadillas y Gorditas': 'Hechas al comal, con queso derretido o rellenas de carnitas.',
+  'Órdenes por kilo':       'Carnitas recién salidas del cazo, por el peso que gustes.',
+  'Bebidas':                'Para acompañar tu pedido, bien frías.',
+};
+
+// Foto de respaldo por categoría, para cuando un platillo no tiene
+// imagen propia cargada en Supabase.
+const FOTO_CATEGORIA = {
+  'Tacos':                    'img/taco-maciza.jpg',
+  'Tortas':                   'img/torta-maciza.png',
+  'Quesadillas y Gorditas':   'img/gordita-doble.jpg',
+  'Órdenes por kilo':         'img/kilo-maciza.jpg',
+  'Bebidas':                  'img/agua-jamaica.jpg'
+};
 
 async function loadMenuPublico() {
   const wrap = document.getElementById('menuPublicoGrid');
@@ -41,26 +64,16 @@ async function loadMenuPublico() {
     // Guardamos las bebidas disponibles para poder ofrecerlas en las promociones
     bebidasDisponibles = platillos.filter(p => p.categorias?.nombre === 'Bebidas');
 
-    // Agrupar por categoría
-    const grupos = {};
-    platillos.forEach(p => {
-      const cat = p.categorias?.nombre || 'Otros';
-      (grupos[cat] = grupos[cat] || []).push(p);
-    });
-    menuAgrupado = grupos; // se reutiliza en abrirModalCategoria()
+    // Orden fijo por categoría (Tacos → Tortas → Quesadillas y Gorditas →
+    // Órdenes por kilo → Bebidas → cualquier otra), pero TODO en una sola
+    // cuadrícula — ya no se separa por tarjetas de categoría ni modal.
+    const rango = (p) => {
+      const idx = ORDEN_CATEGORIAS.indexOf(p.categorias?.nombre);
+      return idx === -1 ? ORDEN_CATEGORIAS.length : idx;
+    };
+    const ordenados = [...platillos].sort((a, b) => rango(a) - rango(b) || a.nombre.localeCompare(b.nombre));
 
-    // Orden fijo: Tacos → Tortas → Quesadillas y Gorditas → Órdenes por kilo → Bebidas → cualquier otra al final
-    const categoriasOrdenadas = [
-      ...ORDEN_CATEGORIAS.filter(c => grupos[c]),
-      ...Object.keys(grupos).filter(c => !ORDEN_CATEGORIAS.includes(c))
-    ];
-
-    // En vez de listar los ~40 platillos de golpe, mostramos tarjetas
-    // grandes por categoría — al tocar una se abre el modal con esos
-    // platillos nada más (ver abrirModalCategoria).
-    wrap.innerHTML = `<div class="categorias-grid">${
-      categoriasOrdenadas.map(cat => tarjetaCategoria(cat, grupos[cat])).join('')
-    }</div>`;
+    wrap.innerHTML = `<div class="menu-flat-grid">${ordenados.map(p => tarjetaPlatillo(p)).join('')}</div>`;
   } catch (e) {
     wrap.innerHTML = `<div class="empty-state">
       <p>⚠️ No pudimos cargar el menú en este momento.</p>
@@ -74,83 +87,32 @@ async function loadMenuPublico() {
   }
 }
 
-// Foto representativa que se usa en la tarjeta grande de cada categoría
-// (no es la foto de cada platillo individual, solo la portada del grupo).
-const FOTO_CATEGORIA = {
-  'Tacos':                    'img/taco-maciza.jpg',
-  'Tortas':                   'img/torta-maciza.png',
-  'Quesadillas y Gorditas':   'img/gordita-doble.jpg',
-  'Órdenes por kilo':         'img/kilo-maciza.jpg',
-  'Bebidas':                  'img/agua-jamaica.jpg'
-};
-
-function tarjetaCategoria(cat, items) {
-  const foto = FOTO_CATEGORIA[cat] || (items.find(p => p.imagen_url) || {}).imagen_url;
-  return `
-    <div class="categoria-tile" data-cat="${catKey(cat)}" onclick="abrirModalCategoria('${esc(cat)}')">
-      <div class="categoria-tile-foto">
-        ${foto
-          ? `<img src="${esc(foto)}" alt="${esc(cat)}"/>`
-          : `<div class="categoria-tile-emoji">${getEmoji(cat)}</div>`}
-        <div class="categoria-tile-scrim">
-          <h3>${esc(cat)}</h3>
-          <span class="categoria-tile-count">${items.length} opciones</span>
-        </div>
-      </div>
-    </div>`;
-}
-
-function abrirModalCategoria(cat) {
-  const items = menuAgrupado[cat] || [];
-  document.getElementById('modalCategoriaTitulo').textContent = cat;
-  document.getElementById('modalCategoriaGrid').innerHTML = items.map(p => tarjetaPlatillo(p)).join('');
-  document.getElementById('modalCategoria').style.display = 'flex';
-}
-
-function cerrarModalCategoria() {
-  document.getElementById('modalCategoria').style.display = 'none';
-}
-
-function cerrarModalCategoriaOutside(e) {
-  if (e.target === e.currentTarget) cerrarModalCategoria();
-}
-
-function catKey(nombreCategoria) {
-  const c = (nombreCategoria || '').toLowerCase();
-  if (c.includes('bebida')) return 'bebidas';
-  if (c.includes('torta')) return 'tortas';
-  if (c.includes('quesadilla') || c.includes('gordita') || c.includes('antojito')) return 'antojitos';
-  if (c.includes('kilo') || c.includes('orden')) return 'kilo';
-  return 'tacos';
-}
-
 function tarjetaPlatillo(p) {
-  const esPeso = p.categorias?.nombre === 'Órdenes por kilo' && !/chamorro/i.test(p.nombre);
+  const cat = p.categorias?.nombre || '';
+  const esPeso = cat === 'Órdenes por kilo' && !/chamorro/i.test(p.nombre);
   const precioEfectivo = esPeso ? p.precio + RECARGO_KG_COMER_AQUI : p.precio;
   const accion = esPeso
     ? `abrirModalPeso(${p.id}, '${esc(p.nombre)}', ${precioEfectivo})`
-    : `agregarAlCarrito(${p.id}, '${esc(p.nombre)}', ${p.precio}, '${esc(p.categorias?.nombre || '')}')`;
+    : `agregarAlCarrito(${p.id}, '${esc(p.nombre)}', ${p.precio}, '${esc(cat)}')`;
 
-  // Los refrescos de marca (Coca-Cola, Fanta, Boing, etc.) no llevan ícono
-  // ni foto — solo texto. Las aguas de sabor (hechas por el negocio) sí.
-  const esRefrescoDeMarca = p.categorias?.nombre === 'Bebidas' && !/^agua de/i.test(p.nombre);
+  const foto = p.imagen_url || FOTO_CATEGORIA[cat] || '';
+  const precioTexto = esPeso ? `MX$${(precioEfectivo * 1000).toFixed(2)}/kg` : `MX$${Number(p.precio).toFixed(2)}`;
+  const desc = DESCRIPCION_CATEGORIA[cat] || 'Delicioso platillo preparado al momento con ingredientes frescos.';
 
   return `
-    <div class="menu-card" data-cat="${catKey(p.categorias?.nombre)}" id="tarjeta-${p.id}" onclick="animarTarjeta(${p.id}); ${accion}">
-      ${esRefrescoDeMarca ? '' : `
-      <div class="menu-card-plato">
-        ${p.imagen_url
-          ? `<img src="${esc(p.imagen_url)}" alt="${esc(p.nombre)}" class="menu-card-foto"/>`
-          : `<div class="menu-card-emoji">${getEmoji(p.nombre)}</div>`}
-      </div>`}
-      <span class="menu-card-cat ${catClass(p.categorias?.nombre)}">${esc(p.categorias?.nombre || '')}</span>
-      <h3>${esc(p.nombre)}</h3>
-      ${/combinad|doble/i.test(p.nombre) ? '<p style="font-size:12px;color:var(--accent-color);margin:-.5rem 0 .5rem">Elige tu(s) carne(s) en "Nota" al agregarlo a tu pedido</p>' : ''}
-      <div class="menu-card-footer">
-        <div class="menu-price">${esPeso ? fmt(precioEfectivo * 1000) + ' / kg' : fmt(p.precio)}</div>
-        <span class="menu-add-hint">${esPeso ? 'Elige la cantidad' : 'Toca para agregar'}</span>
+    <div class="dish-card" id="tarjeta-${p.id}">
+      <div class="dish-photo-wrap">
+        ${foto
+          ? `<img src="${esc(foto)}" alt="${esc(p.nombre)}" class="dish-photo"/>`
+          : `<div class="dish-photo-emoji">${getEmoji(p.nombre)}</div>`}
+        <span class="dish-price">${precioTexto}</span>
       </div>
-      ${esPeso && RECARGO_KG_COMER_AQUI ? '<p style="font-size:11px;color:var(--text-light);margin-top:.3rem">Incluye +$10/kg por consumir aquí</p>' : ''}
+      <h3 class="dish-title">${esc(p.nombre)}</h3>
+      <p class="dish-desc">${esc(desc)}</p>
+      ${/combinad|doble/i.test(p.nombre) ? '<p class="dish-nota">Elige tu(s) carne(s) en "Nota" al agregarlo a tu pedido</p>' : ''}
+      <button class="dish-btn" onclick="animarTarjeta(${p.id}); ${accion}">
+        <span class="dish-btn-plus">+</span> ${esPeso ? 'Elegir cantidad' : 'Agregar al pedido'}
+      </button>
     </div>
   `;
 }
@@ -324,6 +286,7 @@ function renderCarrito() {
   if (!items.length) {
     wrap.innerHTML = '<p style="text-align:center;color:var(--text-light);font-size:13px">Tu pedido está vacío. Toca un platillo para agregarlo.</p>';
     document.getElementById('clienteTotal').textContent = fmt(0);
+    actualizarCarritoFlotante([], 0);
     return;
   }
   wrap.innerHTML = items.map(([id, v]) => {
@@ -394,13 +357,21 @@ function renderCarrito() {
 
 function actualizarCarritoFlotante(items, total) {
   const barra = document.getElementById('carritoFlotante');
-  if (!barra) return;
-  if (!items.length) { barra.style.display = 'none'; return; }
-  barra.style.display = 'flex';
-  // Contamos líneas de producto, no la cantidad cruda (los pesos usan gramos
-  // como "cantidad" y eso se vería como un número absurdo, ej. "500").
-  document.getElementById('cfCantidad').textContent = items.length;
-  document.getElementById('cfTotal').textContent = fmt(total);
+  const navBadge = document.getElementById('navCartCount');
+  if (!items.length) {
+    if (barra) barra.style.display = 'none';
+    if (navBadge) navBadge.style.display = 'none';
+    return;
+  }
+  if (barra) {
+    barra.style.display = 'flex';
+    document.getElementById('cfCantidad').textContent = items.length;
+    document.getElementById('cfTotal').textContent = fmt(total);
+  }
+  if (navBadge) {
+    navBadge.style.display = 'inline-flex';
+    navBadge.textContent = items.length;
+  }
 }
 
 /* ════════════════════════════════════════════════
@@ -588,7 +559,7 @@ async function enviarResena() {
     // El botón de Google se muestra SIEMPRE, sin importar la calificación
     // que haya dado el cliente — filtrar por calificación ("review gating")
     // va contra las políticas de Google y puede penalizar la ficha del negocio.
-    document.querySelector('#resena .qr-panel').innerHTML = `
+    document.querySelector('#resena .resena-form-card').innerHTML = `
       <div style="font-size:4rem">🎉</div>
       <h2>¡Gracias!</h2>
       <p style="color:var(--text-light);margin-top:1rem">Tu opinión nos ayuda a mejorar. ¡Vuelve pronto!</p>
@@ -597,44 +568,39 @@ async function enviarResena() {
         <a href="${GOOGLE_REVIEW_URL}" target="_blank" rel="noopener" class="btn-google">⭐ Escribir reseña en Google</a>
       </div>`;
     showToast('¡Reseña enviada! Gracias 🙏');
-    loadResenasCarrusel(); // refresca el carrusel con la nueva reseña
+    loadResenasCarrusel(); // refresca la lista/carrusel con la nueva reseña
   } catch (e) {
     showToast('Error al enviar: ' + (e.message || JSON.stringify(e)), 'error');
   }
 }
 
 /* ════════════════════════════════════════════════
-   CARRUSEL DE RESEÑAS ("escalera eléctrica")
-   Muestra las reseñas reales más recientes deslizándose sin parar.
-   La lista se duplica una vez para que el loop de CSS sea perfecto.
+   LISTA DE RESEÑAS RECIENTES (sección "Reseñas de verdad")
 ════════════════════════════════════════════════ */
 async function loadResenasCarrusel() {
-  const track = document.getElementById('resenasCarruselTrack');
-  const seccion = document.getElementById('resenasCarrusel');
-  if (!track || !seccion) return;
+  const lista = document.getElementById('resenasListaPublica');
+  if (!lista) return;
   try {
     const data = await sb.get('resena',
       'select=nombre_cliente,numero_mesa,calificacion,comentario,fecha&order=fecha.desc&limit=12'
     );
-    // Sin reseñas todavía: ocultamos la sección completa en vez de
-    // mostrar un carrusel vacío.
-    if (!data.length) { seccion.style.display = 'none'; return; }
-    seccion.style.display = 'block';
-
-    const tarjeta = (r) => `
-      <div class="resena-carrusel-card">
+    if (!data.length) {
+      lista.innerHTML = `
+        <div class="resena-empty">
+          <div class="resena-empty-icon">💬</div>
+          <p>Aún no hay reseñas.</p>
+          <p class="resena-empty-sub">Sé la primera persona en contar cómo estuvo tu visita.</p>
+        </div>`;
+      return;
+    }
+    lista.innerHTML = data.map(r => `
+      <div class="resena-card-publica">
         <div class="rc-stars">${'⭐'.repeat(r.calificacion)}${'☆'.repeat(5 - r.calificacion)}</div>
         <div class="rc-comentario">${esc(r.comentario || '¡Excelente!')}</div>
         <div class="rc-autor">${esc(r.nombre_cliente || (r.numero_mesa ? 'Mesa ' + r.numero_mesa : 'Cliente'))}</div>
-      </div>`;
-
-    const html = data.map(tarjeta).join('');
-    // Se duplica el contenido para que la animación (translateX -50%)
-    // haga un loop continuo sin salto visible.
-    track.innerHTML = html + html;
+      </div>`).join('');
   } catch (e) {
-    seccion.style.display = 'none';
-    console.warn('No se pudo cargar el carrusel de reseñas', e);
+    console.warn('No se pudo cargar la lista de reseñas', e);
   }
 }
 
@@ -656,7 +622,7 @@ function init() {
     document.getElementById('mesaBanner').textContent = `Mesa ${mesaActual}`;
     document.getElementById('pedidoOrigenTexto').textContent = `Pedido para tu Mesa ${mesaActual}. Selecciona los platillos que quieras.`;
   } else {
-    document.getElementById('mesaBanner').textContent = 'Pedido para llevar / mostrador';
+    document.getElementById('mesaBanner').textContent = 'Directo del cazo · Tradición michoacana';
   }
 
   loadMenuPublico();
