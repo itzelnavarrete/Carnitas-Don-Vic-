@@ -76,6 +76,15 @@
         <div class="empty-state"><div class="spinner" style="margin:0 auto"></div><p style="margin-top:1rem">Cargando menú…</p></div>
       </div>
 
+      <!-- Modal por categoría — se abre al tocar una tarjeta grande (Tacos, Bebidas, etc.) -->
+      <div class="modal-overlay" id="modalCategoria" onclick="cerrarModalCategoriaOutside(event)">
+        <div class="modal modal-lg">
+          <button class="modal-close" onclick="cerrarModalCategoria()">✕</button>
+          <h3 class="modal-title" id="modalCategoriaTitulo">Categoría</h3>
+          <div id="modalCategoriaGrid" class="menu-flat-grid"></div>
+        </div>
+      </div>
+
       <div class="ref-cart-layout">
         <div class="ref-cart-card" id="resumenPedido">
           <h3>Tu pedido</h3>
