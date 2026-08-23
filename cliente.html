@@ -6,45 +6,38 @@
   <title>Carnitas Don Vic</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600&family=Sora:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2"/>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=3"/>
 </head>
-<body>
+<body class="ref-body">
 
-  <nav id="navbar">
-    <div class="nav-inner">
-      <a href="#inicio" class="nav-logo">Carnitas Don Vic</a>
-      <ul class="nav-links">
-        <li><a href="#pedido">Pedido</a></li>
+  <nav id="navbar" class="ref-nav">
+    <div class="ref-nav-inner">
+      <a href="#inicio" class="ref-logo"><span class="ref-logo-flame">🔥</span> Carnitas <span class="ref-logo-accent">Don Vic</span></a>
+      <ul class="ref-nav-links">
+        <li><a href="#pedido">Menú</a></li>
+        <li><a href="#resena">Reseñas</a></li>
         <li><a href="#eventos">Eventos</a></li>
-        <li><a href="#resena">Reseña</a></li>
-        <li><a href="#contacto">Contacto</a></li>
+        <li><a href="#contacto">Ubicación</a></li>
       </ul>
+      <button class="ref-cart-btn" onclick="document.getElementById('resumenPedido').scrollIntoView({behavior:'smooth', block:'start'})">
+        🛒 Mi pedido <span id="navCartCount" class="ref-cart-badge" style="display:none">0</span>
+      </button>
     </div>
   </nav>
 
-  <section id="inicio" class="hero hero-papel">
-    <div class="hero-ghost-text">CARNITAS</div>
-    <div class="hero-content hero-content-papel hero-content-split">
-      <div class="hero-text-col">
-        <div class="hero-tag" id="mesaBanner">Bienvenido</div>
-        <h1 class="hero-title hero-title-papel">Carnitas<br/><span class="title-highlight title-highlight-papel">"Don Vic"</span></h1>
-        <p class="hero-desc hero-desc-papel">Arma tu pedido, cotiza tu evento o cuéntanos cómo te fue.</p>
-
-        <div class="hero-actions hero-actions-left">
-          <button class="btn-primary btn-cta-green" onclick="document.getElementById('pedido').scrollIntoView({behavior:'smooth'})">🌮 Hacer un pedido</button>
-          <button class="btn-secondary btn-secondary-papel" onclick="document.getElementById('resena').scrollIntoView({behavior:'smooth'})">⭐ Dejar una reseña</button>
-        </div>
-      </div>
-
-      <div class="hero-photo-col">
-        <img src="img/logo-carnitas-don-vic.png" alt="Carnitas Don Vic" class="hero-food-foto hero-logo-foto"/>
+  <section id="inicio" class="ref-hero">
+    <div class="ref-hero-overlay"></div>
+    <div class="ref-hero-content">
+      <div class="ref-hero-tag" id="mesaBanner">Directo del cazo · Tradición michoacana</div>
+      <h1 class="ref-hero-title">Carnitas <span class="ref-hl">Don Vic</span></h1>
+      <p class="ref-hero-desc">Tacos, tortas, gorditas y quesadillas con carnitas doraditas al punto. Pide en línea y recoge caliente.</p>
+      <div class="ref-hero-actions">
+        <button class="ref-btn-primary" onclick="document.getElementById('pedido').scrollIntoView({behavior:'smooth'})">Ver el menú ↓</button>
+        <button class="ref-btn-outline" onclick="document.getElementById('eventos').scrollIntoView({behavior:'smooth'})">✨ Cotiza tu evento</button>
       </div>
     </div>
-    <div class="hero-rasgado"></div>
   </section>
-
-  <div class="picado-strip"></div>
 
   <section id="promociones" class="section-promos">
     <div class="promo-marquee">
@@ -71,151 +64,146 @@
     </div>
   </section>
 
-  <section id="pedido" class="section-menu">
+  <section id="pedido" class="ref-section-menu">
     <div class="container">
-      <div class="section-header">
-        <div class="section-pill">Nuestras opciones</div>
-        <h2>Arma tu pedido</h2>
-        <p class="section-sub" id="pedidoOrigenTexto">Selecciona las opciones que quieras y confirma al final.</p>
+      <div class="ref-section-header">
+        <div class="ref-pill">Recién salidas del cazo</div>
+        <h2 class="ref-section-title">El <span class="ref-hl">menú</span> de la casa</h2>
+        <p class="ref-section-sub" id="pedidoOrigenTexto">Todo se prepara al momento. Arma tu pedido, escribe tu nombre y confirma; nosotros lo tenemos listo para recoger.</p>
       </div>
-      <div id="menuPublicoGrid" class="menu-cat-lista">
+
+      <div id="menuPublicoGrid" class="ref-menu-wrap">
         <div class="empty-state"><div class="spinner" style="margin:0 auto"></div><p style="margin-top:1rem">Cargando menú…</p></div>
       </div>
 
-      <div class="resenas-layout" style="margin-top:3rem;">
-        <div class="qr-panel" id="resumenPedido" style="text-align:left;">
-          <h3 style="text-align:center;">Tu pedido</h3>
+      <div class="ref-cart-layout">
+        <div class="ref-cart-card" id="resumenPedido">
+          <h3>Tu pedido</h3>
           <div id="promoBanner"></div>
           <div id="clienteCarrito" style="margin:1rem 0;"></div>
-          <div style="display:flex; justify-content:space-between; font-weight:700; font-family:var(--heading-font); font-size:1.4rem; color:var(--accent-color); margin-bottom:1rem;">
+          <div class="ref-cart-total">
             <span>Total</span><span id="clienteTotal">$0.00</span>
           </div>
-          <label style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--text-light);">Tu nombre (para identificar tu pedido)</label>
-          <input type="text" id="clienteNombre" placeholder="Ej. Juan" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); font-family:var(--font-body); margin:0.5rem 0 1.5rem;"/>
-          <button class="btn-primary" style="width:100%;" onclick="enviarPedido()">Confirmar pedido</button>
+          <label class="ref-label">Tu nombre (para identificar tu pedido)</label>
+          <input type="text" id="clienteNombre" placeholder="Ej. Juan" class="ref-input"/>
+          <button class="ref-btn-primary" style="width:100%;margin-top:1rem" onclick="enviarPedido()">Confirmar pedido</button>
           <div id="pedidoConfirmado" style="display:none; text-align:center; padding:1rem 0;"></div>
         </div>
-        <div class="qr-panel">
+        <div class="ref-cart-card">
           <h3>¿Cómo funciona?</h3>
           <p style="margin-top:1rem;">1. Toca las opciones que quieras — se agregan a tu carrito.<br/><br/>
           2. Escribe tu nombre para identificar tu pedido.<br/><br/>
           3. Confirma y guarda tu número de pedido — te avisaremos cuando esté listo.</p>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Modal por categoría — se abre al tocar una tarjeta grande (Tacos, Tortas, etc.) -->
-      <div class="modal-overlay" id="modalCategoria" onclick="cerrarModalCategoriaOutside(event)">
-        <div class="modal modal-lg">
-          <button class="modal-close" onclick="cerrarModalCategoria()">✕</button>
-          <h3 class="modal-title" id="modalCategoriaTitulo">Categoría</h3>
-          <div id="modalCategoriaGrid" class="menu-grid"></div>
-        </div>
+  <section id="eventos" class="ref-section-menu ref-section-alt">
+    <div class="container">
+      <div class="ref-section-header">
+        <div class="ref-pill">Banquetes y grupos grandes</div>
+        <h2 class="ref-section-title">Cotiza tu <span class="ref-hl">evento</span></h2>
+        <p class="ref-section-sub">Cumpleaños, posadas, cualquier reunión — cuéntanos y te contactamos con tu cotización.</p>
+      </div>
+      <div class="ref-cart-card" style="max-width:520px; margin:0 auto;">
+        <label class="ref-label">Tu nombre</label>
+        <input type="text" id="evt-nombre" placeholder="Ej. María" class="ref-input"/>
+        <label class="ref-label">Teléfono de contacto</label>
+        <input type="tel" id="evt-telefono" placeholder="55 1234 5678" maxlength="10" class="ref-input"/>
+        <label class="ref-label">Número de personas</label>
+        <input type="number" id="evt-personas" placeholder="Ej. 40" min="1" class="ref-input"/>
+        <label class="ref-label">Dirección del evento</label>
+        <input type="text" id="evt-direccion" placeholder="Calle, colonia, alcaldía/municipio" class="ref-input"/>
+        <label class="ref-label">Fecha del evento</label>
+        <input type="date" id="evt-fecha" class="ref-input"/>
+        <label class="ref-label">Comentarios (opcional)</label>
+        <textarea id="evt-comentarios" placeholder="Tipo de evento, horario, algo que debamos saber…" class="ref-input" style="min-height:80px; resize:vertical;"></textarea>
+        <button class="ref-btn-primary" style="width:100%;margin-top:1rem" onclick="enviarCotizacionEvento()">Enviar solicitud</button>
       </div>
     </div>
   </section>
 
-  <section id="eventos" class="section-resenas">
+  <section id="resena" class="ref-section-resenas">
     <div class="container">
-      <div class="section-header">
-        <div class="section-pill">Banquetes y Grupos Grandes</div>
-        <h2>Cotiza tu Evento</h2>
-        <p class="section-sub">Cumpleaños, posadas, cualquier reunión — cuéntanos y te contactamos con tu cotización.</p>
+      <div class="ref-resenas-top">
+        <div>
+          <div class="ref-pill">Lo que dice la banda</div>
+          <h2 class="ref-section-title">Reseñas de <span class="ref-hl">verdad</span></h2>
+        </div>
+        <a href="https://search.google.com/local/writereview?placeid=ChIJNwvxFDP60YUR90ryIu0r_vE" target="_blank" rel="noopener" class="ref-btn-dark">⭐ Déjanos reseña en Google</a>
       </div>
-      <div class="resenas-layout">
-        <div class="qr-panel" style="grid-column:1/-1; max-width:520px; margin:0 auto;">
-          <div style="text-align:left;">
-            <label>Tu nombre</label>
-            <input type="text" id="evt-nombre" placeholder="Ej. María" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); margin:0.4rem 0 1rem;"/>
-            <label>Teléfono de contacto</label>
-            <input type="tel" id="evt-telefono" placeholder="55 1234 5678" maxlength="10" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); margin:0.4rem 0 1rem;"/>
-            <label>Número de personas</label>
-            <input type="number" id="evt-personas" placeholder="Ej. 40" min="1" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); margin:0.4rem 0 1rem;"/>
-            <label>Dirección del evento</label>
-            <input type="text" id="evt-direccion" placeholder="Calle, colonia, alcaldía/municipio" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); margin:0.4rem 0 1rem;"/>
-            <label>Fecha del evento</label>
-            <input type="date" id="evt-fecha" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); margin:0.4rem 0 1rem;"/>
-            <label>Comentarios (opcional)</label>
-            <textarea id="evt-comentarios" placeholder="Tipo de evento, horario, algo que debamos saber…" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); margin:0.4rem 0 1.5rem; min-height:80px; resize:vertical;"></textarea>
-            <button class="btn-primary" style="width:100%" onclick="enviarCotizacionEvento()">Enviar solicitud</button>
+      <div class="ref-resenas-layout">
+        <div class="ref-cart-card resena-form-card">
+          <h3>💬 Cuéntanos qué tal</h3>
+          <label class="ref-label">Tu nombre</label>
+          <input type="text" id="resenaNombreManual" placeholder="Ej. María G." class="ref-input"/>
+          <label class="ref-label">Tu calificación</label>
+          <div class="stars-selector" style="font-size:2rem; margin:.5rem 0 1.25rem; cursor:pointer; color:#ccc;">
+            <span class="star-btn" onclick="seleccionarEstrella(1)">★</span>
+            <span class="star-btn" onclick="seleccionarEstrella(2)">★</span>
+            <span class="star-btn" onclick="seleccionarEstrella(3)">★</span>
+            <span class="star-btn" onclick="seleccionarEstrella(4)">★</span>
+            <span class="star-btn" onclick="seleccionarEstrella(5)">★</span>
+          </div>
+          <label class="ref-label">Tu comentario</label>
+          <textarea id="resenaComentario" placeholder="¿Cómo estuvieron las carnitas?" class="ref-input" style="min-height:90px; resize:vertical;"></textarea>
+          <button class="ref-btn-primary" style="width:100%;margin-top:1rem" onclick="enviarResena()">Publicar reseña</button>
+        </div>
+        <div class="ref-cart-card" id="resenasListaPublica">
+          <div class="resena-empty">
+            <div class="resena-empty-icon">💬</div>
+            <p>Cargando reseñas…</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="resenasCarrusel" class="resenas-carrusel-wrap">
-    <h2 class="resenas-carrusel-titulo">Lo que dicen nuestros clientes</h2>
-    <div class="resenas-carrusel-track" id="resenasCarruselTrack">
-      <!-- Se llena solo desde cliente.js con loadResenasCarrusel() -->
-    </div>
-  </section>
-
-  <section id="resena" class="section-menu">
+  <section id="contacto" class="ref-section-ubicacion">
     <div class="container">
-      <div class="section-header">
-        <div class="section-pill">Tu Opinión Cuenta</div>
-        <h2>Deja tu Reseña</h2>
-        <p class="section-sub">Agradecemos su preferencia. ¿Cómo califica su experiencia hoy?</p>
-      </div>
-      <div class="qr-panel" style="max-width:480px; margin:0 auto; text-align:center;">
-        <div id="resenaMesaManualWrap" style="display:block; text-align:left; margin-bottom:1.5rem;">
-          <label>Tu nombre</label>
-          <input type="text" id="resenaNombreManual" placeholder="Ej. Juan" style="width:100%; padding:10px 15px; border:1px solid var(--border); border-radius:var(--r-sm); margin-top:0.4rem; box-sizing:border-box;"/>
-        </div>
-        <div class="stars-selector" style="font-size:2.5rem; margin-bottom:1.5rem; cursor:pointer; color:#ccc;">
-          <span class="star-btn" onclick="seleccionarEstrella(1)">★</span>
-          <span class="star-btn" onclick="seleccionarEstrella(2)">★</span>
-          <span class="star-btn" onclick="seleccionarEstrella(3)">★</span>
-          <span class="star-btn" onclick="seleccionarEstrella(4)">★</span>
-          <span class="star-btn" onclick="seleccionarEstrella(5)">★</span>
-        </div>
-        <textarea id="resenaComentario" placeholder="Comentarios adicionales (opcional)" style="width:100%; padding:1rem; border:1px solid var(--border); border-radius:var(--r-md); font-family:var(--font-body); margin-bottom:1.5rem; resize:vertical; min-height:80px;"></textarea>
-        <button class="btn-primary" style="width:100%" onclick="enviarResena()">Enviar Evaluación</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- dirección, teléfono y horario -->
-  <section id="contacto" class="section-contact" style="background-color: var(--secondary-color); border-top: 1px solid var(--border);">
-    <div class="container contact-container">
-        <div class="contact-info">
-            <h2 class="section-title" style="margin-bottom: 1rem; color: var(--text-color);">Visítanos</h2>
-            <p class="section-sub" style="margin-bottom: 2rem; text-align: left;">Carnitas "Don Vic" están abiertas para brindarte el mejor servicio.</p>
-            <div style="margin-bottom: 1.5rem;">
-                <strong style="color: var(--accent-color); font-family: var(--heading-font); font-size: 1.5rem; display:block;">Dirección</strong>
-                <p>[Norte 92B 4722 Col.La Esmeralda]</p>
-            </div>
-            <div style="margin-bottom: 1.5rem;">
-                <strong style="color: var(--accent-color); font-family: var(--heading-font); font-size: 1.5rem; display:block;">Teléfono</strong>
-                <p>[+52 56 1067 3526]</p>
-            </div>
+      <div class="ref-pill ref-pill-light">Aquí nos encuentras</div>
+      <h2 class="ref-section-title ref-title-light">Cae a probar <span class="ref-hl">recién hecho</span></h2>
+      <div class="ref-ubicacion-layout">
+        <div>
+          <div class="ref-ubicacion-item">
+            <span class="ref-ubicacion-icono">📍</span>
             <div>
-                <strong style="color: var(--accent-color); font-family: var(--heading-font); font-size: 1.5rem; display:block;">Horario de Atención</strong>
-                <ul style="list-style: none; padding: 0;">
-                    <li><strong>Sabado - Domingo:</strong> [9:30AM - 4:30PM]</li>
-                </ul>
+              <h3>Ubicación</h3>
+              <p>Norte 92B 4722, Col. La Esmeralda. Búscanos como <strong>Carnitas Don Vic</strong> en Google Maps y llega directo al cazo.</p>
+              <a class="ref-btn-outline-light" href="https://www.google.com/maps/dir/?api=1&destination=Carnitas+Don+Vic" target="_blank" rel="noopener">🧭 Cómo llegar</a>
             </div>
-            <div style="margin-top: 1.5rem;">
-                <strong style="color: var(--accent-color); font-family: var(--heading-font); font-size: 1.5rem; display:block;">Medios de Pago</strong>
-                <div class="medios-pago">
-                    <span class="medio-pago-item">💵 Efectivo</span>
-                    <span class="medio-pago-item">💳 Tarjeta <small>(+5% comisión)</small></span>
-                    <span class="medio-pago-item">🏦 Transferencia</span>
-                </div>
+          </div>
+          <div class="ref-ubicacion-item">
+            <span class="ref-ubicacion-icono">🕐</span>
+            <div>
+              <h3>Horario</h3>
+              <p>Sábado y domingo · 9:30 a.m. — 4:30 p.m.<br/>Lunes a viernes cerrado (descansa el cazo).</p>
             </div>
+          </div>
+          <div class="ref-ubicacion-item">
+            <span class="ref-ubicacion-icono">💳</span>
+            <div>
+              <h3>Medios de pago</h3>
+              <div class="medios-pago">
+                <span class="medio-pago-item">💵 Efectivo</span>
+                <span class="medio-pago-item">💳 Tarjeta <small>(+5% comisión)</small></span>
+                <span class="medio-pago-item">🏦 Transferencia</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="contact-map" style="box-shadow: var(--shadow-lg); border-radius: var(--r-md); overflow: hidden; background: var(--primary-color); display:flex; align-items:center; justify-content:center; min-height:300px; color: var(--text-light); text-align:center; padding: 2rem;">
-            <p><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3761.320121841087!2d-99.08912322473824!3d19.484858439009884!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1fa3314f10b37%3A0xf1fe2bed22f24af7!2sCarnitas%20Don%20Vic!5e0!3m2!1ses!2smx!4v1784952787319!5m2!1ses!2smx" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></p>
+        <div class="ref-mapa-wrap">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3761.320121841087!2d-99.08912322473824!3d19.484858439009884!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1fa3314f10b37%3A0xf1fe2bed22f24af7!2sCarnitas%20Don%20Vic!5e0!3m2!1ses!2smx!4v1784952787319!5m2!1ses!2smx" width="100%" height="380" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
         </div>
+      </div>
     </div>
   </section>
 
-  <footer class="footer">
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <span class="footer-logo">Carnitas Don Vic</span>
-        <p>Carnitas de siempre, hechas al momento.</p>
-      </div>
+  <footer class="ref-footer">
+    <div class="container">
+      <span class="ref-logo" style="font-size:1.5rem;">🔥 Carnitas <span class="ref-logo-accent">Don Vic</span></span>
+      <p style="margin-top:.5rem;color:#a09a8f;font-size:13px;">Carnitas de siempre, hechas al momento.</p>
     </div>
   </footer>
 
@@ -244,8 +232,8 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="config.js?v=2"></script>
-  <script src="shared.js?v=2"></script>
-  <script src="cliente.js?v=2"></script>
+  <script src="config.js?v=3"></script>
+  <script src="shared.js?v=3"></script>
+  <script src="cliente.js?v=3"></script>
 </body>
 </html>
