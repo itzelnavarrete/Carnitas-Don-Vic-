@@ -64,16 +64,37 @@ async function loadMenuPublico() {
     // Guardamos las bebidas disponibles para poder ofrecerlas en las promociones
     bebidasDisponibles = platillos.filter(p => p.categorias?.nombre === 'Bebidas');
 
-    // Orden fijo por categoría (Tacos → Tortas → Quesadillas y Gorditas →
-    // Órdenes por kilo → Bebidas → cualquier otra), pero TODO en una sola
-    // cuadrícula — ya no se separa por tarjetas de categoría ni modal.
-    const rango = (p) => {
-      const idx = ORDEN_CATEGORIAS.indexOf(p.categorias?.nombre);
-      return idx === -1 ? ORDEN_CATEGORIAS.length : idx;
-    };
-    const ordenados = [...platillos].sort((a, b) => rango(a) - rango(b) || a.nombre.localeCompare(b.nombre));
+    // Agrupamos por categoría (Tacos, Tortas, Bebidas, etc.) para poner un
+    // título por sección — pero SIN separarlas en tarjetas ni modal: todo
+    // vive en la misma página, uno debajo del otro, y se puede hacer scroll
+    // corrido por Tacos → Tortas → ... → Bebidas.
+    const grupos = {};
+    platillos.forEach(p => {
+      const cat = p.categorias?.nombre || 'Otros';
+      (grupos[cat] = grupos[cat] || []).push(p);
+    });
+    const categoriasOrdenadas = [
+      ...ORDEN_CATEGORIAS.filter(c => grupos[c]),
+      ...Object.keys(grupos).filter(c => !ORDEN_CATEGORIAS.includes(c))
+    ];
 
-    wrap.innerHTML = `<div class="menu-flat-grid">${ordenados.map(p => tarjetaPlatillo(p)).join('')}</div>`;
+    // Bebidas y Quesadillas/Gorditas tienen muchas variantes (sabores,
+    // rellenos) — en vez de una tarjeta por cada renglón de la base de
+    // datos, se muestran como UNA sola tarjeta con un selector para
+    // elegir la variante antes de agregarla al pedido.
+    const CATEGORIAS_COMBO = ['Bebidas', 'Quesadillas y Gorditas'];
+
+    wrap.innerHTML = categoriasOrdenadas.map(cat => {
+      const cuerpo = CATEGORIAS_COMBO.includes(cat)
+        ? tarjetaCombo(cat, grupos[cat])
+        : grupos[cat].map(p => tarjetaPlatillo(p)).join('');
+      return `
+        <div class="ref-menu-cat-seccion">
+          <h3 class="ref-menu-cat-titulo">${esc(cat)}</h3>
+          <div class="menu-flat-grid">${cuerpo}</div>
+        </div>
+      `;
+    }).join('');
   } catch (e) {
     wrap.innerHTML = `<div class="empty-state">
       <p>⚠️ No pudimos cargar el menú en este momento.</p>
@@ -115,6 +136,56 @@ function tarjetaPlatillo(p) {
       </button>
     </div>
   `;
+}
+
+function comboKey(cat) {
+  return cat === 'Bebidas' ? 'bebidas' : 'quesygordos';
+}
+
+// Una sola tarjeta que representa TODA una categoría con variantes
+// (Bebidas: sabores; Quesadillas y Gorditas: rellenos). El cliente elige
+// la variante en el selector y el precio/nombre se actualizan solos.
+function tarjetaCombo(cat, items) {
+  const key = comboKey(cat);
+  const foto = FOTO_CATEGORIA[cat] || (items.find(p => p.imagen_url) || {}).imagen_url || '';
+  const desc = DESCRIPCION_CATEGORIA[cat] || 'Elige tu opción favorita.';
+  const primero = items[0];
+
+  return `
+    <div class="dish-card dish-card-combo">
+      <div class="dish-photo-wrap">
+        ${foto
+          ? `<img src="${esc(foto)}" alt="${esc(cat)}" class="dish-photo"/>`
+          : `<div class="dish-photo-emoji">${getEmoji(cat)}</div>`}
+        <span class="dish-price" id="precioCombo-${key}">MX$${Number(primero.precio).toFixed(2)}</span>
+      </div>
+      <h3 class="dish-title">${esc(cat)}</h3>
+      <p class="dish-desc">${esc(desc)}</p>
+      <select id="comboSel-${key}" class="ref-input dish-combo-select" onchange="actualizarPrecioCombo('${key}')">
+        ${items.map(p => `<option value="${p.id}" data-precio="${p.precio}" data-nombre="${esc(p.nombre)}">${esc(p.nombre)}</option>`).join('')}
+      </select>
+      <button class="dish-btn" onclick="agregarCombo('${key}', '${esc(cat)}')">
+        <span class="dish-btn-plus">+</span> Agregar al pedido
+      </button>
+    </div>`;
+}
+
+function actualizarPrecioCombo(key) {
+  const sel = document.getElementById(`comboSel-${key}`);
+  const precioEl = document.getElementById(`precioCombo-${key}`);
+  if (!sel || !precioEl) return;
+  const precio = parseFloat(sel.selectedOptions[0].dataset.precio);
+  precioEl.textContent = `MX$${precio.toFixed(2)}`;
+}
+
+function agregarCombo(key, categoria) {
+  const sel = document.getElementById(`comboSel-${key}`);
+  if (!sel) return;
+  const opt = sel.selectedOptions[0];
+  const id = parseInt(opt.value);
+  const nombre = opt.dataset.nombre;
+  const precio = parseFloat(opt.dataset.precio);
+  agregarAlCarrito(id, nombre, precio, categoria);
 }
 
 function animarTarjeta(id) {
