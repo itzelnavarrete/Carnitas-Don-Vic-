@@ -1002,3 +1002,29 @@ h1, h2, h3, h4 { font-family: var(--heading-font); font-weight: 700; color: var(
 
 /* ── Footer ── */
 .ref-footer { background: var(--ref-dark); border-top: 1px solid rgba(255,255,255,.08); padding: 2.5rem 0; }
+
+/* ── Encabezados de sección dentro del menú (Tacos, Tortas, Bebidas...) ──
+   Todo vive en la misma página — esto es solo un título, no separa en
+   tarjetas ni modal. */
+.ref-menu-cat-seccion:not(:first-child) { margin-top: 3rem; padding-top: 2.5rem; border-top: 2px dashed var(--ref-border); }
+.ref-menu-cat-titulo {
+  font-family: var(--ref-display-font); font-size: 1.7rem; color: var(--ref-red);
+  margin-bottom: 1.25rem; text-transform: none;
+}
+
+/* Blindaje móvil para .menu-flat-grid — misma precaución que ya usamos
+   en .categorias-grid: en pantallas angostas, columnas fijas y alto
+   explícito en la foto en vez de dejar que auto-fill + aspect-ratio
+   calculen solos (eso fue lo que causó tarjetas invisibles antes). */
+@media (max-width: 600px) {
+  .menu-flat-grid { grid-template-columns: 1fr; }
+  .dish-photo-wrap { aspect-ratio: auto; height: 220px; }
+}
+
+/* Tarjeta "combo" (Bebidas / Quesadillas y Gorditas) — mismo look de
+   dish-card, solo que trae un <select> para elegir la variante antes
+   del botón de agregar. */
+.dish-combo-select {
+  margin: 0 1.1rem .75rem;
+  width: calc(100% - 2.2rem);
+}
